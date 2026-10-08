@@ -36,14 +36,13 @@ export function memoryStore(): LimitStore {
   };
 }
 
-/** Upstash store when its env vars are set; otherwise null. */
+/** Upstash store when its env vars are set (UPSTASH_REDIS_REST_* or Vercel's KV_REST_API_*); otherwise null. */
 export function upstashStore(): LimitStore | null {
-  if (
-    !process.env.UPSTASH_REDIS_REST_URL ||
-    !process.env.UPSTASH_REDIS_REST_TOKEN
-  )
-    return null;
-  const redis = Redis.fromEnv();
+  const url = process.env.UPSTASH_REDIS_REST_URL ?? process.env.KV_REST_API_URL;
+  const token =
+    process.env.UPSTASH_REDIS_REST_TOKEN ?? process.env.KV_REST_API_TOKEN;
+  if (!url || !token) return null;
+  const redis = new Redis({ url, token });
   return {
     async incr(key, ttlSeconds) {
       // INCR and EXPIRE in one round trip so a key can't be left without a TTL.
