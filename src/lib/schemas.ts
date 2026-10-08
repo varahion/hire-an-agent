@@ -1,0 +1,32 @@
+import { z } from "zod";
+
+export const jobInputSchema = z.object({
+  job: z.string().trim().min(3).max(200),
+  example: z.string().trim().min(20).max(3000),
+});
+
+export const workResultSchema = z.object({
+  understood: z.array(z.string().max(200)).max(4),
+  missing: z.array(z.string().max(200)).max(4),
+  draft: z.string().max(1500),
+  declined: z
+    .object({ reason: z.string().max(300), suggestion: z.string().max(300) })
+    .optional(),
+});
+
+export const cardResultSchema = z.object({
+  role: z.string().min(1).max(60),
+  does: z.array(z.string().max(120)).min(2).max(4),
+  needs: z.array(z.string().max(120)).min(1).max(4),
+  humanDecides: z.array(z.string().max(120)).min(1).max(3),
+  hoursSavedPerWeek: z.number().min(0.5).max(40),
+  assumption: z.string().max(140),
+});
+
+export const questionSchema = z.object({
+  question: z.string().trim().min(3).max(300),
+});
+
+export type JobInput = z.infer<typeof jobInputSchema>;
+export type WorkResult = z.infer<typeof workResultSchema>;
+export type CardResult = z.infer<typeof cardResultSchema>;
