@@ -1,0 +1,49 @@
+@import "tailwindcss";
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-border: var(--border);
+  --color-accent-vermilion: var(--accent);
+  --color-accent-ink: var(--accent-ink);
+  --font-sans: var(--font-geist-sans), Arial, sans-serif;
+  --font-mono: var(--font-geist-mono), monospace;
+  --radius: 0.125rem;
+}
+
+:root {
+  --background: #f7f7f2;
+  --foreground: #20211f;
+  --muted: #eaeae3;
+  --muted-foreground: #62635c;
+  --border: #c9cac2;
+  /* Vermilion: only for "live" or "agent" moments. */
+  --accent: oklch(0.62 0.22 25);
+  /* Darker vermilion for accent text under 18px. */
+  --accent-ink: oklch(0.52 0.2 27);
+}
+
+@layer base {
+  * {
+    border-color: var(--border);
+  }
+  body {
+    background: var(--background);
+    color: var(--foreground);
+    font-family: var(--font-sans);
+    margin: 0;
+  }
+  :focus-visible {
+    outline: 2px solid var(--foreground);
+    outline-offset: 4px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation: none !important;
+    transition: none !important;
+  }
+}
