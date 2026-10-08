@@ -1,0 +1,6 @@
+node_modules
+.next
+.eve
+.output
+.data
+package-lock.json

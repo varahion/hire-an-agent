@@ -1,0 +1,27 @@
+name: Release Please
+
+# Watches main for conventional commits and keeps a release PR open that bumps
+# the version and CHANGELOG.md. Merging that PR creates a v* tag and a GitHub
+# release.
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  release-please:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: googleapis/release-please-action@v4
+        with:
+          # The default branch may be `develop`; releases always target main.
+          target-branch: main
+          # A PAT lets the release tag trigger other workflows (GITHUB_TOKEN
+          # events don't). Without the secret, the release PR still works.
+          token: ${{ secrets.RELEASE_PLEASE_TOKEN || secrets.GITHUB_TOKEN }}
+          config-file: release-please-config.json
+          manifest-file: .release-please-manifest.json
