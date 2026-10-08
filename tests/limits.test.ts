@@ -63,3 +63,18 @@ test("in production without Upstash there is no limit store (fail closed)", () =
     process.env = env;
   }
 });
+
+test("Vercel's KV_ variable names count as an Upstash configuration", () => {
+  setLimitStoreForTests(undefined);
+  const env = { ...process.env };
+  process.env.VERCEL_ENV = "production";
+  delete process.env.UPSTASH_REDIS_REST_URL;
+  delete process.env.UPSTASH_REDIS_REST_TOKEN;
+  process.env.KV_REST_API_URL = "https://example.upstash.io";
+  process.env.KV_REST_API_TOKEN = "test-token";
+  try {
+    assert.notEqual(getLimitStore(), null);
+  } finally {
+    process.env = env;
+  }
+});
