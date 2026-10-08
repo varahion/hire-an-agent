@@ -42,7 +42,7 @@ npm run dev                 # set EVE_ENABLED=true in .env.local to mount the ag
 npm run test                # unit tests (node:test via tsx)
 npm run lint && npm run typecheck
 npm run build
-npm run eval                # eve evals; needs AI_GATEWAY_API_KEY
+set -a; . ./.env.local; set +a; npm run eval   # eve evals; needs AI_GATEWAY_API_KEY with credits
 ```
 
 ## Invariants
