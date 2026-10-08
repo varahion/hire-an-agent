@@ -76,6 +76,7 @@ test("work returns the structured result and sets a session cookie", async () =>
   const list = await events(response);
   assert.deepEqual(list.at(-1), { type: "result", data: workResult });
   assert.match(response.headers.get("set-cookie") ?? "", /hire_session=.+HttpOnly/i);
+  assert.match(response.headers.get("set-cookie") ?? "", /Path=\/tools\/hire-an-agent;/);
 });
 
 test("work rejects invalid input with 400", async () => {

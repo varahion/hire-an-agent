@@ -1,3 +1,4 @@
+import { BASE_PATH } from "./paths";
 import { signSession, verifySession, type SessionClaims } from "./signing";
 
 const COOKIE = "hire_session";
@@ -14,5 +15,5 @@ export function readSession(request: Request): SessionClaims | null {
 
 /** A Set-Cookie value holding the signed session. */
 export function sessionCookie(claims: SessionClaims): string {
-  return `${COOKIE}=${signSession(claims)}; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=${SESSION_SECONDS}`;
+  return `${COOKIE}=${signSession(claims)}; Path=${BASE_PATH}; HttpOnly; Secure; SameSite=Lax; Max-Age=${SESSION_SECONDS}`;
 }
