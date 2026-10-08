@@ -21,7 +21,11 @@ test("coerceCard trims an over-long assumption to fit the schema", () => {
 });
 
 test("coerceCard keeps only the first four 'does' items and clamps hours", () => {
-  const out = coerceCard({ ...card, does: ["a", "b", "c", "d", "e", "f"], hoursSavedPerWeek: 80 });
+  const out = coerceCard({
+    ...card,
+    does: ["a", "b", "c", "d", "e", "f"],
+    hoursSavedPerWeek: 80,
+  });
   assert.deepEqual(out?.does, ["a", "b", "c", "d"]);
   assert.equal(out?.hoursSavedPerWeek, 40);
 });

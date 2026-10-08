@@ -16,19 +16,21 @@ beforeEach(() => {
   process.env.HIRE_SIGNING_SECRET = "card-page-secret";
 });
 
-test("loadCard returns the card for a valid token", () => {
-  assert.deepEqual(loadCard(signCard(card)), card);
+test("loadCard returns the card for a valid token", async () => {
+  assert.deepEqual(await loadCard(signCard(card)), card);
 });
 
-test("loadCard returns null for a tampered token", () => {
+test("loadCard returns null for a tampered token", async () => {
   const token = signCard(card);
   const [body, mac] = token.split(".");
-  const forged = Buffer.from(JSON.stringify({ card: { ...card, role: "Fake" }, issuedAt: 1 })).toString("base64url");
-  assert.equal(loadCard(`${forged}.${mac}`), null);
-  assert.equal(loadCard(body), null);
+  const forged = Buffer.from(
+    JSON.stringify({ card: { ...card, role: "Fake" }, issuedAt: 1 }),
+  ).toString("base64url");
+  assert.equal(await loadCard(`${forged}.${mac}`), null);
+  assert.equal(await loadCard(body), null);
 });
 
-test("loadCard returns null for garbage and URL-encoded junk", () => {
-  assert.equal(loadCard("not-a-token"), null);
-  assert.equal(loadCard("%E0%A4%A"), null);
+test("loadCard returns null for garbage and URL-encoded junk", async () => {
+  assert.equal(await loadCard("not-a-token"), null);
+  assert.equal(await loadCard("%E0%A4%A"), null);
 });

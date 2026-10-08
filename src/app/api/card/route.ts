@@ -12,7 +12,7 @@ import { CARD_MESSAGE } from "@/lib/prompts";
 import { requestGuard } from "@/lib/request";
 import { cardResultSchema, type CardResult } from "@/lib/schemas";
 import { readSession } from "@/lib/session";
-import { signCard } from "@/lib/signing";
+import { saveCard } from "@/lib/cards";
 import { ndjsonResponse, type AppEvent } from "@/lib/stream";
 import {
   EXPIRED_MESSAGE,
@@ -72,7 +72,7 @@ export async function POST(request: Request) {
         // Backstop: the card is public, so strip personal data before signing it.
         const card = stripPiiFromCard(event.data as CardResult);
         ok = true;
-        yield { type: "result", data: card, shareToken: signCard(card) };
+        yield { type: "result", data: card, shareToken: await saveCard(card) };
         continue;
       }
       if (event.type === "limit") await endSession(store!, session!.sessionId);
