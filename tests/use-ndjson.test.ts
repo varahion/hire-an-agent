@@ -21,12 +21,19 @@ async function collect(response: Response) {
 }
 
 test("readNdjson joins an object split across two chunks", async () => {
-  const out = await collect(responseFrom(['{"type":"del', 'ta","text":"Hi"}\n']));
+  const out = await collect(
+    responseFrom(['{"type":"del', 'ta","text":"Hi"}\n']),
+  );
   assert.deepEqual(out, [{ type: "delta", text: "Hi" }]);
 });
 
 test("readNdjson ignores blank lines and reads a last line without a newline", async () => {
-  const out = await collect(responseFrom(['{"type":"status","text":"a"}\n\n', '{"type":"delta","text":"b"}']));
+  const out = await collect(
+    responseFrom([
+      '{"type":"status","text":"a"}\n\n',
+      '{"type":"delta","text":"b"}',
+    ]),
+  );
   assert.equal(out.length, 2);
 });
 

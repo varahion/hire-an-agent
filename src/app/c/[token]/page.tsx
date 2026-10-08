@@ -7,7 +7,7 @@ import { loadCard } from "@/lib/card";
 type Props = { params: Promise<{ token: string }> };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const card = loadCard((await params).token);
+  const card = await loadCard((await params).token);
   if (!card) return { title: "Card not found · Hire an Agent" };
   const description = `${card.does[0]} Saves about ${card.hoursSavedPerWeek} hours a week.`;
   return {
@@ -18,7 +18,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 export default async function CardPage({ params }: Props) {
-  const card = loadCard((await params).token);
+  const card = await loadCard((await params).token);
 
   return (
     <main className="mx-auto max-w-[680px] px-4 pb-24 pt-10 sm:pt-16">

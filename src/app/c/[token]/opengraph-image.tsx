@@ -16,7 +16,7 @@ export default async function Image({
 }: {
   params: Promise<{ token: string }>;
 }) {
-  const card = loadCard((await params).token);
+  const card = await loadCard((await params).token);
 
   return new ImageResponse(
     card ? (

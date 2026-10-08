@@ -1,6 +1,11 @@
 import assert from "node:assert/strict";
 import test, { beforeEach } from "node:test";
-import { signCard, signSession, verifyCard, verifySession } from "../src/lib/signing";
+import {
+  signCard,
+  signSession,
+  verifyCard,
+  verifySession,
+} from "../src/lib/signing";
 
 const card = {
   role: "Cake order assistant",
@@ -30,9 +35,15 @@ test("session tokens round-trip", () => {
 });
 
 test("a tampered session payload is rejected", () => {
-  const token = signSession({ sessionId: "s_1", asked: 0, exp: Date.now() + 60_000 });
+  const token = signSession({
+    sessionId: "s_1",
+    asked: 0,
+    exp: Date.now() + 60_000,
+  });
   const [, signature] = token.split(".");
-  const forged = Buffer.from(JSON.stringify({ sessionId: "s_2", asked: 0, exp: Date.now() + 60_000 })).toString("base64url");
+  const forged = Buffer.from(
+    JSON.stringify({ sessionId: "s_2", asked: 0, exp: Date.now() + 60_000 }),
+  ).toString("base64url");
   assert.equal(verifySession(`${forged}.${signature}`), null);
 });
 
@@ -42,7 +53,11 @@ test("an expired session is rejected", () => {
 });
 
 test("a session signed with another secret is rejected", () => {
-  const token = signSession({ sessionId: "s_1", asked: 0, exp: Date.now() + 60_000 });
+  const token = signSession({
+    sessionId: "s_1",
+    asked: 0,
+    exp: Date.now() + 60_000,
+  });
   process.env.HIRE_SIGNING_SECRET = "test-secret-two";
   assert.equal(verifySession(token), null);
 });

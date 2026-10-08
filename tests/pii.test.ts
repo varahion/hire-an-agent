@@ -32,7 +32,9 @@ test("stripPiiFromCard cleans every text field", () => {
 });
 
 test("stripPii removes links and bare domains", () => {
-  const out = stripPii("Refunds at https://scam.example/pay or www.scam.example or scam.example/refund");
+  const out = stripPii(
+    "Refunds at https://scam.example/pay or www.scam.example or scam.example/refund",
+  );
   assert.equal(out.includes("scam.example"), false);
 });
 
