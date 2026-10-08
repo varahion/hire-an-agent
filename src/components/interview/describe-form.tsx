@@ -3,7 +3,7 @@
 import { useId, useState } from "react";
 
 export const PRIVACY_LINE =
-  "We use your example only to run this interview. It isn't saved by this tool or shown to anyone else, and the interview closes after an hour.";
+  "Your example is sent to our AI provider to run this interview and kept only in the interview's session record, which we don't read, share or use for anything else. The interview closes after an hour.";
 
 type Props = {
   initial: { job: string; example: string };
@@ -23,7 +23,8 @@ export function DescribeForm({ initial, busy, onSubmit }: Props) {
       className="space-y-6"
       onSubmit={(event) => {
         event.preventDefault();
-        if (!busy && !tooShort) onSubmit({ job: job.trim(), example: example.trim() });
+        if (!busy && !tooShort)
+          onSubmit({ job: job.trim(), example: example.trim() });
       }}
     >
       <div>
@@ -31,7 +32,9 @@ export function DescribeForm({ initial, busy, onSubmit }: Props) {
           <label htmlFor={jobId} className="font-medium">
             The job
           </label>
-          <span className="text-sm tabular-nums text-muted-foreground">{job.length}/200</span>
+          <span className="text-sm tabular-nums text-muted-foreground">
+            {job.length}/200
+          </span>
         </div>
         <input
           id={jobId}
@@ -47,7 +50,9 @@ export function DescribeForm({ initial, busy, onSubmit }: Props) {
           <label htmlFor={exampleId} className="font-medium">
             One real example
           </label>
-          <span className="text-sm tabular-nums text-muted-foreground">{example.length}/3000</span>
+          <span className="text-sm tabular-nums text-muted-foreground">
+            {example.length}/3000
+          </span>
         </div>
         <textarea
           id={exampleId}
@@ -55,11 +60,15 @@ export function DescribeForm({ initial, busy, onSubmit }: Props) {
           maxLength={3000}
           rows={7}
           onChange={(e) => setExample(e.target.value)}
-          placeholder={"Hi! Could I order a chocolate cake for about 20 people this Saturday? It's for my daughter's birthday. Thanks, Priya"}
+          placeholder={
+            "Hi! Could I order a chocolate cake for about 20 people this Saturday? It's for my daughter's birthday. Thanks, Priya"
+          }
           className="mt-2 w-full resize-y border border-border bg-white/60 px-3 py-2.5 leading-relaxed outline-none focus:border-foreground"
         />
       </div>
-      <p className="text-sm leading-relaxed text-muted-foreground">{PRIVACY_LINE}</p>
+      <p className="text-sm leading-relaxed text-muted-foreground">
+        {PRIVACY_LINE}
+      </p>
       <button
         type="submit"
         disabled={busy || tooShort}

@@ -22,6 +22,26 @@ test("session.failed becomes a failed error", () => {
   assert.equal(event.type === "error" && event.code, "failed");
 });
 
+test("a session-limit pause becomes a session limit", () => {
+  assert.deepEqual(toAppEvents(ev("input.requested", { requests: [{ kind: "session-limit" }] })), [
+    { type: "limit", reason: "session" },
+  ]);
+});
+
+test("runTurn stops at a session-limit pause and reports it", async () => {
+  const { runTurn } = await import("../src/lib/turn");
+  const reasons: string[] = [];
+  async function* events() {
+    yield ev("input.requested", { requests: [{ kind: "session-limit" }] });
+    yield ev("turn.waiting", { on: "input" });
+    yield ev("message.appended", { messageDelta: "should never be read" });
+  }
+  const out: AppEvent[] = [];
+  for await (const e of runTurn(events(), { deltas: true, onFailure: (r) => reasons.push(r) })) out.push(e);
+  assert.deepEqual(out, [{ type: "limit", reason: "session" }]);
+  assert.deepEqual(reasons, ["session-limit"]);
+});
+
 test("unknown event types are ignored", () => {
   assert.deepEqual(toAppEvents(ev("reasoning.appended", { reasoningDelta: "hmm" })), []);
 });

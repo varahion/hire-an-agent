@@ -14,7 +14,8 @@ export function setEveClientForTests(client: EveLike | null | undefined): void {
 export function getEveClient(): EveLike | null {
   if (override !== undefined) return override;
   const { EVE_ENABLED, EVE_SERVICE_TOKEN, EVE_AGENT_ORIGIN } = process.env;
-  if (EVE_ENABLED !== "true" || !EVE_SERVICE_TOKEN || !EVE_AGENT_ORIGIN) return null;
+  if (EVE_ENABLED !== "true" || !EVE_SERVICE_TOKEN || !EVE_AGENT_ORIGIN)
+    return null;
   return new Client({
     host: EVE_AGENT_ORIGIN,
     auth: { bearer: EVE_SERVICE_TOKEN },

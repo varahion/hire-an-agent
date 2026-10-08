@@ -1,6 +1,11 @@
 import type { MessageStreamEvent } from "eve/client";
 import type { ZodType } from "zod";
-import { BOUNDARY_TYPES, FAILED_MESSAGE, toAppEvents, type AppEvent } from "./stream";
+import {
+  BOUNDARY_TYPES,
+  FAILED_MESSAGE,
+  toAppEvents,
+  type AppEvent,
+} from "./stream";
 
 export const OFFLINE_MESSAGE = "The interview is offline right now.";
 export const EXPIRED_MESSAGE = "This interview has ended. Start a new one.";
@@ -16,7 +21,12 @@ export async function* once(event: AppEvent): AsyncIterable<AppEvent> {
  */
 export async function* runTurn(
   response: AsyncIterable<MessageStreamEvent>,
-  options: { deltas: boolean; schema?: ZodType; coerce?: (raw: unknown) => unknown; onFailure?: (reason: string) => void },
+  options: {
+    deltas: boolean;
+    schema?: ZodType;
+    coerce?: (raw: unknown) => unknown;
+    onFailure?: (reason: string) => void;
+  },
 ): AsyncIterable<AppEvent> {
   let gotResult = false;
   for await (const event of response) {
@@ -37,7 +47,13 @@ export async function* runTurn(
         yield { type: "result", data: data as never };
         continue;
       }
-      if (appEvent.type === "error") options.onFailure?.((event as { type: string }).type);
+      if (appEvent.type === "limit") {
+        options.onFailure?.("session-limit");
+        yield appEvent;
+        return;
+      }
+      if (appEvent.type === "error")
+        options.onFailure?.((event as { type: string }).type);
       yield appEvent;
       if (appEvent.type === "error") return;
     }
@@ -57,7 +73,9 @@ export async function* safely(
   try {
     yield* await source();
   } catch (error) {
-    onFailure?.(error instanceof Error ? `exception:${error.name}` : "exception");
+    onFailure?.(
+      error instanceof Error ? `exception:${error.name}` : "exception",
+    );
     yield { type: "error", code: "failed", message: FAILED_MESSAGE };
   }
 }

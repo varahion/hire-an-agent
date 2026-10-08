@@ -7,7 +7,8 @@ export default defineAgent({
   defaultTools: false,
   tool: false,
   limits: {
-    maxInputTokensPerSession: 12_000,
+    // Every turn re-sends the history, so input grows fast; the cost cap is the real limit.
+    maxInputTokensPerSession: 30_000,
     maxOutputTokensPerSession: 4_000,
     maxTokenCostUsdPerSession: 0.05,
     sessionTimeoutMs: 60 * 60 * 1_000,

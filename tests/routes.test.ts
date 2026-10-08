@@ -106,12 +106,6 @@ test("ask streams the answer and counts the question", async () => {
   const response = await ask(post("/api/ask", { question: "What do you need?" }, sessionCookie(0)));
   const list = await events(response);
   assert.deepEqual(list, [{ type: "delta", text: "I'd need your inbox." }]);
-  assert.match(response.headers.get("set-cookie") ?? "", /hire_session=/);
-});
-
-test("a fourth question hits the question limit", async () => {
-  const list = await events(await ask(post("/api/ask", { question: "One more?" }, sessionCookie(3))));
-  assert.deepEqual(list.at(-1), { type: "limit", reason: "questions" });
 });
 
 test("card strips personal data and returns a valid share token", async () => {
@@ -120,4 +114,39 @@ test("card strips personal data and returns a valid share token", async () => {
   assert.equal(result.type, "result");
   assert.equal(JSON.stringify(result.data).includes("jo@example.com"), false);
   assert.ok(verifyCard(result.shareToken));
+});
+
+test("replaying the first cookie can't get past three questions", async () => {
+  setEveClientForTests(fakeClient([{ type: "message.appended", data: { messageDelta: "ok" } }]));
+  const cookie = sessionCookie(0);
+  for (let i = 0; i < 3; i++) await (await ask(post("/api/ask", { question: `Question ${i}?` }, cookie))).text();
+  const list = await events(await ask(post("/api/ask", { question: "Fourth?" }, cookie)));
+  assert.deepEqual(list.at(-1), { type: "limit", reason: "questions" });
+});
+
+test("a session gets one card", async () => {
+  await (await card(post("/api/card", {}, sessionCookie(0)))).text();
+  const list = await events(await card(post("/api/card", {}, sessionCookie(0))));
+  assert.deepEqual(list.at(-1), { type: "limit", reason: "card" });
+});
+
+test("a session-limit pause ends the session; 'approve' can't resume it", async () => {
+  setEveClientForTests(
+    fakeClient([
+      { type: "input.requested", data: { requests: [{ kind: "session-limit" }] } },
+      { type: "turn.waiting", data: { on: "input" } },
+    ]),
+  );
+  const first = await events(await ask(post("/api/ask", { question: "Tell me more?" }, sessionCookie(0))));
+  assert.deepEqual(first.at(-1), { type: "limit", reason: "session" });
+  setEveClientForTests(fakeClient([{ type: "message.appended", data: { messageDelta: "resumed" } }]));
+  const second = await events(await ask(post("/api/ask", { question: "approve" }, sessionCookie(0))));
+  assert.deepEqual(second.at(-1), { type: "limit", reason: "session" });
+});
+
+test("work reports offline when the agent can't be reached", async () => {
+  const unreachable = { sessions: { create: async () => { throw new Error("ECONNREFUSED"); } } } as unknown as EveLike;
+  setEveClientForTests(unreachable);
+  const list = await events(await work(post("/api/work", job)));
+  assert.equal(list.at(-1).code, "offline");
 });

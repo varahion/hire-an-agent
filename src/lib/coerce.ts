@@ -1,4 +1,9 @@
-import { cardResultSchema, workResultSchema, type CardResult, type WorkResult } from "./schemas";
+import {
+  cardResultSchema,
+  workResultSchema,
+  type CardResult,
+  type WorkResult,
+} from "./schemas";
 
 // Models occasionally run slightly past a length limit. Trim to fit rather than
 // fail the visitor; anything still invalid after trimming is a real failure.
@@ -28,7 +33,9 @@ export function coerceCard(raw: unknown): CardResult | null {
     does: list(raw.does, 4, 120),
     needs: list(raw.needs, 4, 120),
     humanDecides: list(raw.humanDecides, 3, 120),
-    hoursSavedPerWeek: Number.isFinite(hours) ? Math.min(40, Math.max(0.5, hours)) : NaN,
+    hoursSavedPerWeek: Number.isFinite(hours)
+      ? Math.min(40, Math.max(0.5, hours))
+      : NaN,
     assumption: text(raw.assumption, 140),
   };
   const parsed = cardResultSchema.safeParse(candidate);
@@ -38,7 +45,10 @@ export function coerceCard(raw: unknown): CardResult | null {
 export function coerceWork(raw: unknown): WorkResult | null {
   if (!isObject(raw)) return null;
   const declined = isObject(raw.declined)
-    ? { reason: text(raw.declined.reason, 300), suggestion: text(raw.declined.suggestion, 300) }
+    ? {
+        reason: text(raw.declined.reason, 300),
+        suggestion: text(raw.declined.suggestion, 300),
+      }
     : undefined;
   const candidate = {
     understood: list(raw.understood, 4, 200),

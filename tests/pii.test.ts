@@ -30,3 +30,12 @@ test("stripPiiFromCard cleans every text field", () => {
   assert.equal(JSON.stringify(card).includes("900123"), false);
   assert.equal(card.hoursSavedPerWeek, 2);
 });
+
+test("stripPii removes links and bare domains", () => {
+  const out = stripPii("Refunds at https://scam.example/pay or www.scam.example or scam.example/refund");
+  assert.equal(out.includes("scam.example"), false);
+});
+
+test("stripPii leaves times and dates alone", () => {
+  assert.equal(stripPii("Pickup 2026-10-08 10:30"), "Pickup 2026-10-08 10:30");
+});
