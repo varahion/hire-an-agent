@@ -4,7 +4,10 @@ const MAX_BODY_BYTES = 16_384;
 export function requestGuard(request: Request): Response | null {
   const origin = request.headers.get("origin");
   if (origin && origin !== new URL(request.url).origin)
-    return Response.json({ error: "Please use this tool from its own page." }, { status: 403 });
+    return Response.json(
+      { error: "Please use this tool from its own page." },
+      { status: 403 },
+    );
   const type = request.headers.get("content-type") ?? "";
   if (!type.toLowerCase().startsWith("application/json"))
     return Response.json({ error: "Please send JSON." }, { status: 415 });
@@ -12,8 +15,12 @@ export function requestGuard(request: Request): Response | null {
 }
 
 /** Read and parse a JSON body, refusing anything over `maxBytes`. */
-export async function readBody(request: Request, maxBytes = MAX_BODY_BYTES): Promise<unknown> {
-  if (Number(request.headers.get("content-length")) > maxBytes) throw new Error("Request too large");
+export async function readBody(
+  request: Request,
+  maxBytes = MAX_BODY_BYTES,
+): Promise<unknown> {
+  if (Number(request.headers.get("content-length")) > maxBytes)
+    throw new Error("Request too large");
   const reader = request.body?.getReader();
   if (!reader) return {};
   const chunks: Uint8Array[] = [];

@@ -39,7 +39,7 @@ set -a; . ./.env.local; set +a; npm run eval   # 6 agent evals; stop `npm run de
 
 ## Privacy
 
-We use your example only to run this interview. It isn't saved by this tool or shown to anyone else, and the interview closes after an hour.
+Your example is sent to our AI provider to run this interview and kept only in the interview's session record, which we don't read, share or use for anything else. The interview closes after an hour.
 
 ## Licence
 

@@ -25,7 +25,8 @@ function verify(token: string): unknown | null {
   } catch {
     return null;
   }
-  if (actual.length !== expected.length || !timingSafeEqual(actual, expected)) return null;
+  if (actual.length !== expected.length || !timingSafeEqual(actual, expected))
+    return null;
   try {
     return JSON.parse(Buffer.from(body, "base64url").toString("utf8"));
   } catch {
@@ -37,7 +38,10 @@ export function signSession(claims: SessionClaims): string {
   return sign(claims);
 }
 
-export function verifySession(token: string, now = Date.now()): SessionClaims | null {
+export function verifySession(
+  token: string,
+  now = Date.now(),
+): SessionClaims | null {
   const data = verify(token) as Partial<SessionClaims> | null;
   if (
     !data ||
@@ -54,7 +58,9 @@ export function signCard(card: CardResult, issuedAt = Date.now()): string {
   return sign({ card, issuedAt });
 }
 
-export function verifyCard(token: string): { card: CardResult; issuedAt: number } | null {
+export function verifyCard(
+  token: string,
+): { card: CardResult; issuedAt: number } | null {
   const data = verify(token) as { card?: unknown; issuedAt?: unknown } | null;
   if (!data || typeof data.issuedAt !== "number") return null;
   const card = cardResultSchema.safeParse(data.card);

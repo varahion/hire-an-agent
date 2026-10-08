@@ -26,7 +26,11 @@ export async function* readNdjson(response: Response): AsyncIterable<AppEvent> {
  * POST JSON to one of the app's routes and hand each event to `onEvent`.
  * Non-stream errors (400, 403, 415) become an "invalid" error event.
  */
-export async function postStream(url: string, body: unknown, onEvent: (event: AppEvent) => void): Promise<void> {
+export async function postStream(
+  url: string,
+  body: unknown,
+  onEvent: (event: AppEvent) => void,
+): Promise<void> {
   let response: Response;
   try {
     response = await fetch(url, {
@@ -35,17 +39,32 @@ export async function postStream(url: string, body: unknown, onEvent: (event: Ap
       body: JSON.stringify(body),
     });
   } catch {
-    onEvent({ type: "error", code: "failed", message: "We couldn't reach the interview. Check your connection and try again." });
+    onEvent({
+      type: "error",
+      code: "failed",
+      message:
+        "We couldn't reach the interview. Check your connection and try again.",
+    });
     return;
   }
   if (!response.headers.get("content-type")?.includes("application/x-ndjson")) {
-    const data = (await response.json().catch(() => ({}))) as { error?: string };
-    onEvent({ type: "error", code: "invalid", message: data.error ?? "Something went wrong. Please try again." });
+    const data = (await response.json().catch(() => ({}))) as {
+      error?: string;
+    };
+    onEvent({
+      type: "error",
+      code: "invalid",
+      message: data.error ?? "Something went wrong. Please try again.",
+    });
     return;
   }
   try {
     for await (const event of readNdjson(response)) onEvent(event);
   } catch {
-    onEvent({ type: "error", code: "failed", message: "The candidate lost its train of thought. Try again." });
+    onEvent({
+      type: "error",
+      code: "failed",
+      message: "The candidate lost its train of thought. Try again.",
+    });
   }
 }

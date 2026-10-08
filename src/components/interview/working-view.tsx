@@ -8,7 +8,10 @@ import { useReduced } from "./use-reduced";
 /** Pulsing vermilion dot + mono status: the agent's live voice. */
 export function LiveStatus({ text }: { text: string }) {
   return (
-    <p className="flex items-center gap-2.5 font-mono text-sm text-accent-ink" role="status">
+    <p
+      className="flex items-center gap-2.5 font-mono text-sm text-accent-ink"
+      role="status"
+    >
       <span className="relative flex h-2 w-2" aria-hidden>
         <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-accent-vermilion opacity-60" />
         <span className="relative inline-flex h-2 w-2 rounded-full bg-accent-vermilion" />
@@ -19,7 +22,12 @@ export function LiveStatus({ text }: { text: string }) {
 }
 
 /** Reveal text character by character over at most `maxMs`; instant with reduced motion. */
-function useTyped(text: string, start: boolean, reduced: boolean, maxMs = 1800): { shown: string; done: boolean } {
+function useTyped(
+  text: string,
+  start: boolean,
+  reduced: boolean,
+  maxMs = 1800,
+): { shown: string; done: boolean } {
   const [count, setCount] = useState(0);
   useEffect(() => {
     if (!start || reduced) return;
@@ -73,13 +81,22 @@ export function WorkingView({
       : {
           initial: { opacity: 0, y: 8 },
           animate: { opacity: 1, y: 0 },
-          transition: { duration: 0.45, delay: i * STAGGER, ease: [0.2, 0.7, 0.2, 1] as const },
+          transition: {
+            duration: 0.45,
+            delay: i * STAGGER,
+            ease: [0.2, 0.7, 0.2, 1] as const,
+          },
         };
 
   if (result.declined)
     return (
-      <motion.section {...enter(0)} aria-live="polite" className="border-l-2 border-accent-vermilion pl-5">
-        <h2 className="text-xl font-semibold tracking-tight">I&apos;d turn this job down.</h2>
+      <motion.section
+        {...enter(0)}
+        className="border-l-2 border-accent-vermilion pl-5"
+      >
+        <h2 className="text-xl font-semibold tracking-tight">
+          I&apos;d turn this job down.
+        </h2>
         <p className="mt-3 leading-relaxed">{result.declined.reason}</p>
         <p className="mt-3 leading-relaxed">
           <span className="font-medium">What I could do instead: </span>
@@ -110,20 +127,28 @@ export function WorkingView({
               ))}
             </ul>
           ) : (
-            <p className="mt-3 text-[15px] text-muted-foreground">Nothing. Your example has what I need.</p>
+            <p className="mt-3 text-[15px] text-muted-foreground">
+              Nothing. Your example has what I need.
+            </p>
           )}
         </motion.div>
       </div>
       <motion.div {...enter(2)}>
         <h2 className="font-medium">My draft, for your approval</h2>
         <div className="mt-3 border border-foreground bg-white/70 p-5 sm:p-6">
-          <p className="whitespace-pre-wrap leading-relaxed" aria-hidden={!typed.done}>
+          <p
+            className="whitespace-pre-wrap leading-relaxed"
+            aria-hidden={!typed.done}
+          >
             {typed.shown}
-            {!typed.done && <span className="ml-0.5 inline-block h-[1.1em] w-[2px] translate-y-[0.2em] animate-pulse bg-accent-vermilion" />}
+            {!typed.done && (
+              <span className="ml-0.5 inline-block h-[1.1em] w-[2px] translate-y-[0.2em] animate-pulse bg-accent-vermilion" />
+            )}
           </p>
-          {typed.done && <p className="sr-only" aria-live="polite">{`Draft ready: ${result.draft}`}</p>}
         </div>
-        <p className="mt-2 text-sm text-muted-foreground">Nothing has been sent. You decide what goes out.</p>
+        <p className="mt-2 text-sm text-muted-foreground">
+          Nothing has been sent. You decide what goes out.
+        </p>
       </motion.div>
     </section>
   );

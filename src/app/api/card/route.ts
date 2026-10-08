@@ -1,5 +1,11 @@
 import { coerceCard } from "@/lib/coerce";
 import { getEveClient } from "@/lib/eve";
+import {
+  countCard,
+  endSession,
+  getLimitStore,
+  isSessionEnded,
+} from "@/lib/limits";
 import { logEvent } from "@/lib/log";
 import { stripPiiFromCard } from "@/lib/pii";
 import { CARD_MESSAGE } from "@/lib/prompts";
@@ -8,7 +14,13 @@ import { cardResultSchema, type CardResult } from "@/lib/schemas";
 import { readSession } from "@/lib/session";
 import { signCard } from "@/lib/signing";
 import { ndjsonResponse, type AppEvent } from "@/lib/stream";
-import { EXPIRED_MESSAGE, OFFLINE_MESSAGE, once, runTurn, safely } from "@/lib/turn";
+import {
+  EXPIRED_MESSAGE,
+  OFFLINE_MESSAGE,
+  once,
+  runTurn,
+  safely,
+} from "@/lib/turn";
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
@@ -18,10 +30,22 @@ export async function POST(request: Request) {
   if (blocked) return blocked;
 
   const session = readSession(request);
-  if (!session) return ndjsonResponse(once({ type: "error", code: "expired", message: EXPIRED_MESSAGE }));
+  if (!session)
+    return ndjsonResponse(
+      once({ type: "error", code: "expired", message: EXPIRED_MESSAGE }),
+    );
 
   const client = getEveClient();
-  if (!client) return ndjsonResponse(once({ type: "error", code: "offline", message: OFFLINE_MESSAGE }));
+  const store = getLimitStore();
+  if (!client || !store)
+    return ndjsonResponse(
+      once({ type: "error", code: "offline", message: OFFLINE_MESSAGE }),
+    );
+
+  if (await isSessionEnded(store, session.sessionId))
+    return ndjsonResponse(once({ type: "limit", reason: "session" }));
+  if (!(await countCard(store, session.sessionId)))
+    return ndjsonResponse(once({ type: "limit", reason: "card" }));
 
   const started = Date.now();
 
@@ -33,8 +57,16 @@ export async function POST(request: Request) {
     for await (const event of safely(async () => {
       const response = await client!.sessions
         .attach(session!.sessionId)
-        .send(CARD_MESSAGE, { outputSchema: cardResultSchema, signal: AbortSignal.timeout(45_000) });
-      return runTurn(response, { deltas: false, schema: cardResultSchema, coerce: coerceCard, onFailure });
+        .send(CARD_MESSAGE, {
+          outputSchema: cardResultSchema,
+          signal: AbortSignal.timeout(45_000),
+        });
+      return runTurn(response, {
+        deltas: false,
+        schema: cardResultSchema,
+        coerce: coerceCard,
+        onFailure,
+      });
     }, onFailure)) {
       if (event.type === "result") {
         // Backstop: the card is public, so strip personal data before signing it.
@@ -43,9 +75,16 @@ export async function POST(request: Request) {
         yield { type: "result", data: card, shareToken: signCard(card) };
         continue;
       }
+      if (event.type === "limit") await endSession(store!, session!.sessionId);
       yield event;
     }
-    logEvent({ type: "turn", name: "card", ok, durationMs: Date.now() - started, reason });
+    logEvent({
+      type: "turn",
+      name: "card",
+      ok,
+      durationMs: Date.now() - started,
+      reason,
+    });
   }
 
   return ndjsonResponse(events());

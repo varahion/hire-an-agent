@@ -7,7 +7,11 @@ const subscribe = () => () => {};
 
 /** Reduced-motion preference, false on the server and first render to avoid hydration mismatches. */
 export function useReduced(): boolean {
-  const mounted = useSyncExternalStore(subscribe, () => true, () => false);
+  const mounted = useSyncExternalStore(
+    subscribe,
+    () => true,
+    () => false,
+  );
   const prefers = useReducedMotion();
   return mounted && Boolean(prefers);
 }

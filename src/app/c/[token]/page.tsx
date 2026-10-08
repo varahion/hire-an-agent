@@ -41,9 +41,17 @@ export default async function CardPage({ params }: Props) {
         </div>
       ) : (
         <div className="mt-14 space-y-4">
-          <h1 className="text-3xl font-semibold tracking-tight">This card isn&apos;t valid.</h1>
-          <p className="text-muted-foreground">The link may be incomplete or changed. You can run your own interview instead.</p>
-          <Link href="/" className="inline-block bg-foreground px-5 py-3 font-medium text-background">
+          <h1 className="text-3xl font-semibold tracking-tight">
+            This card isn&apos;t valid.
+          </h1>
+          <p className="text-muted-foreground">
+            The link may be incomplete or changed. You can run your own
+            interview instead.
+          </p>
+          <Link
+            href="/"
+            className="inline-block bg-foreground px-5 py-3 font-medium text-background"
+          >
             Start an interview
           </Link>
         </div>

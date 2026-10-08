@@ -3,7 +3,12 @@
 import { useId, useState } from "react";
 import { LiveStatus } from "./working-view";
 
-export type QA = { question: string; answer: string; done: boolean };
+export type QA = {
+  question: string;
+  answer: string;
+  done: boolean;
+  failed?: boolean;
+};
 
 const SUGGESTED = [
   "What would you need access to?",
@@ -14,6 +19,7 @@ const SUGGESTED = [
 export const MAX_QUESTIONS = 3;
 
 type Props = {
+  headingRef?: React.Ref<HTMLHeadingElement>;
   turns: QA[];
   busy: boolean;
   /** The card has been requested: show the transcript only. */
@@ -22,7 +28,14 @@ type Props = {
   onCard: () => void;
 };
 
-export function InterviewView({ turns, busy, finished, onAsk, onCard }: Props) {
+export function InterviewView({
+  headingRef,
+  turns,
+  busy,
+  finished,
+  onAsk,
+  onCard,
+}: Props) {
   const [draft, setDraft] = useState("");
   const inputId = useId();
   const asked = turns.length;
@@ -37,7 +50,11 @@ export function InterviewView({ turns, busy, finished, onAsk, onCard }: Props) {
   return (
     <section className="space-y-6">
       <div>
-        <h2 className="text-xl font-semibold tracking-tight">
+        <h2
+          ref={headingRef}
+          tabIndex={-1}
+          className="text-xl font-semibold tracking-tight outline-none"
+        >
           Interview the candidate
         </h2>
         {!finished && (
@@ -49,15 +66,17 @@ export function InterviewView({ turns, busy, finished, onAsk, onCard }: Props) {
         )}
       </div>
 
-      {turns.map((turn) => (
-        <div key={turn.question} className="space-y-2">
+      {turns.map((turn, i) => (
+        <div key={i} className="space-y-2">
           <p className="font-medium">{turn.question}</p>
           {turn.answer ? (
-            <p
-              className="border-l-2 border-accent-vermilion pl-4 leading-relaxed"
-              aria-live={turn.done ? "polite" : "off"}
-            >
+            <p className="border-l-2 border-accent-vermilion pl-4 leading-relaxed">
               {turn.answer}
+            </p>
+          ) : turn.failed ? (
+            <p className="pl-4 text-muted-foreground">
+              No answer this time. This question still counts towards your
+              three.
             </p>
           ) : (
             <LiveStatus text="Thinking about it…" />
