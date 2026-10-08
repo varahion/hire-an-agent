@@ -1,9 +1,18 @@
 const MAX_BODY_BYTES = 16_384;
 
+/** Origins allowed to call the API besides this deployment's own: the site that proxies the tool. */
+function allowedOrigins(request: Request): Set<string> {
+  const listed = (process.env.HIRE_ALLOWED_ORIGINS ?? "")
+    .split(",")
+    .map((o) => o.trim())
+    .filter(Boolean);
+  return new Set([new URL(request.url).origin, ...listed]);
+}
+
 /** Reject cross-origin and non-JSON requests before doing any work. */
 export function requestGuard(request: Request): Response | null {
   const origin = request.headers.get("origin");
-  if (origin && origin !== new URL(request.url).origin)
+  if (origin && !allowedOrigins(request).has(origin))
     return Response.json(
       { error: "Please use this tool from its own page." },
       { status: 403 },

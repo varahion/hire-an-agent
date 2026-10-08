@@ -5,6 +5,7 @@ import { CardView } from "@/components/interview/card-view";
 import { DescribeForm } from "@/components/interview/describe-form";
 import { InterviewView, type QA } from "@/components/interview/interview-view";
 import { postStream } from "@/components/interview/use-ndjson";
+import { withBase } from "@/lib/paths";
 import { LiveStatus, WorkingView } from "@/components/interview/working-view";
 import type { CardResult, WorkResult } from "@/lib/schemas";
 import type { AppEvent } from "@/lib/stream";
@@ -128,7 +129,7 @@ export default function Home() {
       setStatus("Reading your example…");
       setStage("working");
       let ok = false;
-      await postStream("/api/work", next, (event) => {
+      await postStream(withBase("/api/work"), next, (event) => {
         if (handleCommon(event)) return;
         if (event.type === "result") {
           ok = true;
@@ -143,7 +144,7 @@ export default function Home() {
       setNotice(null);
       setTurns((t) => [...t, { question, answer: "", done: false }]);
       let answer = "";
-      await postStream("/api/ask", { question }, (event) => {
+      await postStream(withBase("/api/ask"), { question }, (event) => {
         if (handleCommon(event)) return;
         if (event.type === "delta") {
           answer += event.text;
@@ -170,7 +171,7 @@ export default function Home() {
       setStatus("Writing the CV card…");
       setStage("card");
       let ok = false;
-      await postStream("/api/card", {}, (event) => {
+      await postStream(withBase("/api/card"), {}, (event) => {
         if (handleCommon(event)) return;
         if (event.type === "result" && event.shareToken) {
           ok = true;

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { withBase } from "@/lib/paths";
 import type { CardResult } from "@/lib/schemas";
 import { CvCard } from "../cv-card";
 import { HireButton } from "../hire-button";
@@ -18,7 +19,7 @@ export function CardView({
 }) {
   const [copied, setCopied] = useState(false);
   const [saving, setSaving] = useState(false);
-  const path = `/c/${shareToken}`;
+  const path = withBase(`/c/${shareToken}`);
 
   const copy = async () => {
     try {
