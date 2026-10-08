@@ -34,6 +34,21 @@ export function upstashStore(): LimitStore | null {
   };
 }
 
+let storeOverride: LimitStore | undefined;
+let defaultStore: LimitStore | undefined;
+
+/** Test hook: use this store instead of Upstash or the shared memory store. */
+export function setLimitStoreForTests(store: LimitStore | undefined): void {
+  storeOverride = store;
+}
+
+/** The store routes use: Upstash when configured, otherwise one shared memory store. */
+export function getLimitStore(): LimitStore {
+  if (storeOverride) return storeOverride;
+  defaultStore ??= upstashStore() ?? memoryStore();
+  return defaultStore;
+}
+
 function dailyCap(): number {
   const value = Number(process.env.HIRE_DAILY_SESSION_CAP);
   return Number.isFinite(value) && value > 0 ? value : 300;
