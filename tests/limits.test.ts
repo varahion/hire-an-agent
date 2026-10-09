@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import test, { afterEach } from "node:test";
 import {
   clientIp,
+  countCard,
   getLimitStore,
   memoryStore,
   rateLimit,
@@ -112,4 +113,10 @@ test("Vercel's KV_ variable names count as an Upstash configuration", () => {
   } finally {
     process.env = env;
   }
+});
+
+test("a session gets three cards", async () => {
+  const store = memoryStore();
+  for (let i = 0; i < 3; i++) assert.equal(await countCard(store, "s_cards"), true);
+  assert.equal(await countCard(store, "s_cards"), false);
 });

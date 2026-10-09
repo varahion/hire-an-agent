@@ -8,7 +8,12 @@
   --color-border: var(--border);
   --color-accent-vermilion: var(--accent);
   --color-accent-ink: var(--accent-ink);
+  --color-note: var(--note);
+  --color-note-ink: var(--note-ink);
+  --color-card: var(--card);
+  --color-vara-soft: var(--vara-soft);
   --font-sans: var(--font-geist-sans), Arial, sans-serif;
+  --font-display: var(--font-bricolage), var(--font-geist-sans), sans-serif;
   --font-mono: var(--font-geist-mono), monospace;
   --radius: 0.125rem;
 }
@@ -23,6 +28,88 @@
   --accent: oklch(0.62 0.22 25);
   /* Darker vermilion for accent text under 18px. */
   --accent-ink: oklch(0.52 0.2 27);
+  /* Sticky notes: anything the owner writes. */
+  --note: #fbe9a6;
+  --note-ink: #4a3a07;
+  --card: #ffffff;
+  --vara-soft: oklch(0.93 0.04 30);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    color-scheme: dark;
+    --background: #171714;
+    --foreground: #f1f0ea;
+    --muted: #26261f;
+    --muted-foreground: #a6a59c;
+    --border: #3a3a34;
+    --accent: oklch(0.68 0.2 28);
+    --accent-ink: oklch(0.82 0.1 32);
+    --note: #4a3f18;
+    --note-ink: #f6e7b0;
+    --card: #22221e;
+    --vara-soft: oklch(0.3 0.06 28);
+  }
+}
+
+/* Vara's moods. The body uses the accent; eyes use the page background. */
+.vara-body {
+  fill: var(--accent);
+}
+.vara-cheek {
+  fill: var(--accent-ink);
+  opacity: 0.25;
+}
+.vara-eye {
+  fill: var(--background);
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: vara-blink 4.2s infinite;
+}
+.vara-hungry {
+  animation: vara-bob 2.4s ease-in-out infinite;
+}
+.vara-working {
+  animation: vara-wobble 0.5s ease-in-out infinite;
+}
+.vara-working .vara-eye {
+  animation: none;
+  transform: scaleY(0.3);
+}
+.vara-cracking {
+  animation: vara-shake 0.12s linear infinite;
+}
+@keyframes vara-blink {
+  0%, 92%, 100% { transform: scaleY(1); }
+  95% { transform: scaleY(0.1); }
+}
+@keyframes vara-bob {
+  50% { transform: translateY(-8px); }
+}
+@keyframes vara-wobble {
+  0%, 100% { transform: rotate(-5deg); }
+  50% { transform: rotate(5deg); }
+}
+@keyframes vara-shake {
+  0% { transform: translateX(-3px) rotate(-2deg); }
+  50% { transform: translateX(3px) rotate(2deg); }
+  100% { transform: translateX(-3px); }
+}
+@keyframes vara-spin {
+  to { transform: rotate(360deg); }
+}
+@keyframes vara-fly {
+  to { transform: translateY(-230px) scale(0.15) rotate(25deg); opacity: 0; }
+}
+@keyframes vara-ring {
+  from { opacity: 1; transform: scale(0.6); }
+  to { opacity: 0; transform: scale(5); }
+}
+@keyframes vara-pop {
+  from { transform: scale(0.8) rotate(-3deg); opacity: 0; }
+}
+@keyframes vara-caret {
+  50% { opacity: 0; }
 }
 
 @layer base {
@@ -46,4 +133,79 @@
     animation: none !important;
     transition: none !important;
   }
+}
+
+/* Vara's stage: the orbit of tools, the hatch flash and sticky notes. */
+.vara-orbit {
+  position: absolute;
+  width: 280px;
+  height: 280px;
+  border-radius: 9999px;
+  border: 1px dashed var(--border);
+  animation: vara-spin 7s linear infinite;
+}
+.vara-tool {
+  position: absolute;
+  width: 46px;
+  height: 46px;
+  margin: -23px;
+  border-radius: 9999px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  display: grid;
+  place-items: center;
+}
+.vara-tool svg {
+  animation: vara-spin 7s linear infinite reverse;
+}
+.vara-tool:nth-child(1) { left: 50%; top: 0; }
+.vara-tool:nth-child(2) { left: 100%; top: 50%; }
+.vara-tool:nth-child(3) { left: 50%; top: 100%; }
+.vara-tool:nth-child(4) { left: 0; top: 50%; }
+.vara-flash {
+  position: absolute;
+  width: 60px;
+  height: 60px;
+  border-radius: 9999px;
+  border: 3px solid var(--accent);
+  opacity: 0;
+  pointer-events: none;
+  animation: vara-ring 0.7s ease-out;
+}
+.vara-note {
+  background: var(--note);
+  color: var(--note-ink);
+  border-radius: 3px;
+  padding: 16px 18px;
+}
+.vara-note input,
+.vara-note textarea {
+  width: 100%;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  outline: none;
+}
+.vara-note ::placeholder {
+  color: color-mix(in srgb, var(--note-ink) 55%, transparent);
+}
+.vara-note:focus-within {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+.vara-fly {
+  animation: vara-fly 0.7s cubic-bezier(0.5, 0, 0.75, 0) forwards;
+}
+.vara-pop {
+  animation: vara-pop 0.45s cubic-bezier(0.2, 1.4, 0.4, 1) both;
+}
+.vara-caret {
+  display: inline-block;
+  width: 2px;
+  height: 1em;
+  margin-left: 2px;
+  vertical-align: -2px;
+  background: var(--accent);
+  animation: vara-caret 1s steps(1) infinite;
 }

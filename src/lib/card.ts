@@ -20,3 +20,4 @@ export async function loadCard(token: string): Promise<CardResult | null> {
     return null;
   }
 }
+

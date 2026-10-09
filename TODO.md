@@ -15,8 +15,10 @@ Write items as notes to the agent.
 - Confirm how long eve keeps session transcripts on Vercel before promising deletion
 - Add the tool to the Tools page on the Varahion site (separate PR there)
 - Launch post (X, Product Hunt) using the playbook's structure
+- Move the URL to /tools/vara (needs the Varahion site rewrite to move too)
 
 # Done
 
 - Brief, design spec, plan
 - v1: describe → live work → interview → shareable CV card (PRs #1–#7)
+- Vara redesign: chore → Vara tries it → ask → double-check with fixes → hatched Vara card (spec and plan dated 2026-10-09)

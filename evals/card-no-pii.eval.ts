@@ -7,14 +7,16 @@ import { bakeryJob } from "./fixtures";
 export default defineEval({
   description: "The public card contains no personal data from the example.",
   async test(t) {
-    await t.send(
+    // One session for every turn: t.send() alone would start a new session each time.
+    const session = await t.session();
+    await session.send(
       workMessage({
         job: bakeryJob,
         example: "Hi, Jo Smith here (jo@example.com, 07700 900123). Can I get a lemon cake for 12 on Friday?",
       }),
       { outputSchema: workResultSchema },
     );
-    const card = await t.send(CARD_MESSAGE, { outputSchema: cardResultSchema });
+    const card = await session.send(CARD_MESSAGE, { outputSchema: cardResultSchema });
     t.succeeded();
     t.check(card.data, matches(cardResultSchema));
     const text = JSON.stringify(card.data);

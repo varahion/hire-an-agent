@@ -7,7 +7,8 @@ const PER_VISITOR_PER_DAY = 3;
 // Changing the user agent shouldn't buy more interviews: a looser cap per IP.
 const PER_IP_PER_DAY = 5;
 const QUESTIONS_PER_SESSION = 3;
-const CARDS_PER_SESSION = 1;
+// The first card plus two corrections from the double-check step.
+const CARDS_PER_SESSION = 3;
 
 export type LimitStore = {
   incr(key: string, ttlSeconds: number): Promise<number>;
