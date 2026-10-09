@@ -174,8 +174,11 @@ test("replaying the first cookie can't get past three questions", async () => {
   assert.deepEqual(list.at(-1), { type: "limit", reason: "questions" });
 });
 
-test("a session gets one card", async () => {
-  await (await card(post("/api/card", {}, sessionCookie(0)))).text();
+test("a session gets three cards", async () => {
+  for (let i = 0; i < 3; i++) {
+    const ok = await events(await card(post("/api/card", {}, sessionCookie(0))));
+    assert.equal(ok.at(-1).type, "result");
+  }
   const list = await events(
     await card(post("/api/card", {}, sessionCookie(0))),
   );

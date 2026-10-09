@@ -52,3 +52,14 @@ test("coerceWork passes a valid result through unchanged", () => {
   const valid = { understood: ["a"], missing: ["b"], draft: "Hello" };
   assert.deepEqual(coerceWork(valid), valid);
 });
+
+test("coerceCard trims a long name to 24", () => {
+  const result = coerceCard({ ...card, name: "The Wonderful Cake Order Vara" });
+  assert.equal(result?.name?.length, 24);
+});
+
+test("coerceCard drops an unknown look", () => {
+  const result = coerceCard({ ...card, look: "wizard" });
+  assert.ok(result);
+  assert.equal("look" in result, false);
+});

@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test, { beforeEach } from "node:test";
-import { loadCard } from "../src/lib/card";
+import { loadCard, withCardDefaults } from "../src/lib/card";
 import {
   memoryCardStore,
   saveCard,
@@ -41,4 +41,10 @@ test("old signed links still load", async () => {
 
 test("two saves get different ids", async () => {
   assert.notEqual(await saveCard(card), await saveCard(card));
+});
+
+test("withCardDefaults fills name and look for an old card", () => {
+  const filled = withCardDefaults(card);
+  assert.equal(filled.name, "Vara");
+  assert.equal(filled.look, "other");
 });

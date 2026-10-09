@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import {
   cardResultSchema,
+  correctionSchema,
   jobInputSchema,
   workResultSchema,
 } from "../src/lib/schemas";
@@ -79,4 +80,30 @@ test("workResultSchema accepts a declined result with an empty draft", () => {
     },
   });
   assert.equal(result.success, true);
+});
+
+test("a card with name and look parses", () => {
+  const result = cardResultSchema.safeParse({ ...card, name: "Cake Vara", look: "orders" });
+  assert.equal(result.success, true);
+});
+
+test("a card without name and look still parses", () => {
+  assert.equal(cardResultSchema.safeParse(card).success, true);
+});
+
+test("a look outside the list is rejected", () => {
+  assert.equal(cardResultSchema.safeParse({ ...card, look: "wizard" }).success, false);
+});
+
+test("a name over 24 characters is rejected", () => {
+  assert.equal(cardResultSchema.safeParse({ ...card, name: "a".repeat(25) }).success, false);
+});
+
+test("correctionSchema accepts no correction", () => {
+  assert.deepEqual(correctionSchema.parse({}), {});
+});
+
+test("correctionSchema rejects 2 and 201 characters", () => {
+  assert.equal(correctionSchema.safeParse({ correction: "ab" }).success, false);
+  assert.equal(correctionSchema.safeParse({ correction: "a".repeat(201) }).success, false);
 });
