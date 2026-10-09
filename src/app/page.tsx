@@ -4,12 +4,15 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { CardView } from "@/components/interview/card-view";
 import { InterviewView, type QA } from "@/components/interview/interview-view";
 import { postStream } from "@/components/interview/use-ndjson";
+import { useReduced } from "@/components/interview/use-reduced";
 import { WorkingView } from "@/components/interview/working-view";
+import { CheckView } from "@/components/vara/check-view";
 import { ChoreForm } from "@/components/vara/chore-form";
 import { ORBIT_ICONS } from "@/components/vara/looks";
 import { VaraProgress, type Stage } from "@/components/vara/progress";
 import { VaraStage } from "@/components/vara/stage";
 import type { VaraMood } from "@/components/vara/vara";
+import { withCardDefaults } from "@/lib/card-display";
 import { withBase } from "@/lib/paths";
 import type { CardResult, WorkResult } from "@/lib/schemas";
 import type { AppEvent } from "@/lib/stream";
@@ -32,6 +35,9 @@ const LIMIT_TEXT = {
   session:
     "This session reached its limit. Start a new chore, or tell Varahion about the job directly.",
 } as const;
+
+// The first read-back plus two corrections: the server allows three cards a session.
+const MAX_FIXES = 2;
 
 const HERO: Record<Stage, { title: string; lede: string }> = {
   chore: {
@@ -67,6 +73,10 @@ export default function Home() {
     data: CardResult;
     shareToken: string;
   } | null>(null);
+  const [previous, setPrevious] = useState<CardResult | undefined>();
+  const [fixesUsed, setFixesUsed] = useState(0);
+  const [hatching, setHatching] = useState(false);
+  const [flashKey, setFlashKey] = useState(0);
   const [notice, setNotice] = useState<Notice>(null);
   const busyRef = useRef(false);
   const [busy, setBusy] = useState(false);
@@ -74,10 +84,13 @@ export default function Home() {
   const [announcement, setAnnouncement] = useState("");
   const headingRef = useRef<HTMLHeadingElement>(null);
   const nextRef = useRef<HTMLButtonElement>(null);
+  const cardRef = useRef<HTMLDivElement>(null);
+  const reduced = useReduced();
 
   // Move focus to the new screen so keyboard and screen-reader users follow along.
   useEffect(() => {
-    if (stage !== "chore") headingRef.current?.focus();
+    if (stage === "hatched") cardRef.current?.focus();
+    else if (stage !== "chore") headingRef.current?.focus();
   }, [stage]);
   useEffect(() => {
     if (revealed) nextRef.current?.focus();
@@ -164,22 +177,47 @@ export default function Home() {
       setAnnouncement(answer ? `Answer: ${answer}` : "No answer this time.");
     });
 
-  const getCard = () =>
+  // The first read-back, or (with a correction) Vara's revised one.
+  const getCard = (correction?: string) =>
     run(async () => {
       setNotice(null);
       setStage("check");
+      const before = card?.data;
       let ok = false;
-      await postStream(withBase("/api/card"), {}, (event) => {
-        if (handleCommon(event)) return;
-        if (event.type === "result" && event.shareToken) {
-          ok = true;
-          setCard({
-            data: event.data as CardResult,
-            shareToken: event.shareToken,
-          });
-        }
-      });
-      if (!ok) setStage("ask");
+      await postStream(
+        withBase("/api/card"),
+        correction ? { correction } : {},
+        (event) => {
+          if (handleCommon(event)) return;
+          if (event.type === "result" && event.shareToken) {
+            ok = true;
+            setPrevious(correction ? before : undefined);
+            setCard({
+              data: event.data as CardResult,
+              shareToken: event.shareToken,
+            });
+          }
+        },
+      );
+      if (ok && correction) setFixesUsed((n) => n + 1);
+      if (ok) {
+        setStatus(correction ? "Fixed. Is it right now?" : "Vara is waiting for your OK");
+        setAnnouncement(correction ? "Vara fixed it." : "Vara's read-back is ready.");
+      } else if (!before) setStage("ask");
+    });
+
+  const hatch = () =>
+    run(async () => {
+      if (!card) return;
+      const vara = withCardDefaults(card.data);
+      setHatching(true);
+      setStatus("Something's happening…");
+      if (!reduced) await new Promise((r) => window.setTimeout(r, 1100));
+      setHatching(false);
+      setFlashKey((k) => k + 1);
+      setStatus(`${vara.name} has hatched!`);
+      setStage("hatched");
+      setAnnouncement(`${vara.name} has hatched.`);
     });
 
   const restart = () => {
@@ -189,6 +227,9 @@ export default function Home() {
     setRevealed(false);
     setTurns([]);
     setCard(null);
+    setPrevious(undefined);
+    setFixesUsed(0);
+    setFlashKey(0);
     setNotice(null);
   };
 
@@ -200,10 +241,18 @@ export default function Home() {
     );
   }, []);
 
-  const working = stage === "trying" ? !revealed : busy;
-  const mood: VaraMood = working ? "working" : "hungry";
-  const orbit = working ? ORBIT_ICONS.other : null;
-  const hero = HERO[stage];
+  const vara = card ? withCardDefaults(card.data) : null;
+  const working = stage === "trying" ? !revealed : busy && !hatching;
+  const mood: VaraMood = hatching
+    ? "cracking"
+    : working
+      ? "working"
+      : "hungry";
+  const orbit = working ? ORBIT_ICONS[vara?.look ?? "other"] : null;
+  const hero =
+    stage === "hatched" && vara
+      ? { ...HERO.hatched, title: `Meet your ${vara.name}` }
+      : HERO[stage];
   const shownStatus =
     stage === "trying" && revealed && work?.declined
       ? "Vara won't do this one"
@@ -237,7 +286,13 @@ export default function Home() {
       </div>
 
       <div className="mt-2">
-        <VaraStage mood={mood} orbit={orbit} status={shownStatus} flashKey={0} />
+        <VaraStage
+          mood={mood}
+          look={stage === "hatched" ? vara?.look : undefined}
+          orbit={orbit}
+          status={shownStatus}
+          flashKey={flashKey}
+        />
       </div>
 
       {notice && (
@@ -302,17 +357,28 @@ export default function Home() {
           <InterviewView
             turns={turns}
             busy={busy}
-            finished={false}
             onAsk={ask}
-            onCard={getCard}
+            onCard={() => getCard()}
           />
         )}
 
         {stage === "check" && card && (
+          <CheckView
+            card={card.data}
+            previous={previous}
+            busy={busy}
+            fixesLeft={MAX_FIXES - fixesUsed}
+            onConfirm={hatch}
+            onFix={(text) => getCard(text)}
+          />
+        )}
+
+        {stage === "hatched" && card && (
           <CardView
             card={card.data}
             shareToken={card.shareToken}
             onRestart={restart}
+            focusRef={cardRef}
           />
         )}
       </div>

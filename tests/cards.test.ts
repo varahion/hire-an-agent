@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import test, { beforeEach } from "node:test";
-import { loadCard, withCardDefaults } from "../src/lib/card";
+import { loadCard } from "../src/lib/card";
+import { cardNumber, withCardDefaults } from "../src/lib/card-display";
 import {
   memoryCardStore,
   saveCard,
@@ -47,4 +48,10 @@ test("withCardDefaults fills name and look for an old card", () => {
   const filled = withCardDefaults(card);
   assert.equal(filled.name, "Vara");
   assert.equal(filled.look, "other");
+});
+
+test("cardNumber is four digits and the same for the same id", () => {
+  assert.match(cardNumber("k8f2xQ7a"), /^\d{4}$/);
+  assert.equal(cardNumber("k8f2xQ7a"), cardNumber("k8f2xQ7a"));
+  assert.notEqual(cardNumber("k8f2xQ7a"), cardNumber("Zz9_-abc"));
 });

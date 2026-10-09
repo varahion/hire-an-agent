@@ -1,5 +1,5 @@
 import { CARD_ID, loadCardById } from "./cards";
-import type { CardResult, VaraLook } from "./schemas";
+import type { CardResult } from "./schemas";
 import { verifyCard } from "./signing";
 
 /**
@@ -21,9 +21,3 @@ export async function loadCard(token: string): Promise<CardResult | null> {
   }
 }
 
-/** Cards saved before Vara have no name or look: show a plain Vara. */
-export function withCardDefaults(
-  card: CardResult,
-): CardResult & { name: string; look: VaraLook } {
-  return { ...card, name: card.name ?? "Vara", look: card.look ?? "other" };
-}

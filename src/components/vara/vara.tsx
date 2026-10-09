@@ -3,7 +3,7 @@ import { ACCESSORIES } from "./looks";
 
 export type VaraMood = "hungry" | "working" | "cracking";
 
-/** Vara: a small vermilion creature. Its mood sets the animation; its look adds an accessory. */
+/** Vara: a small vermilion creature. Its mood sets the animation; its look adds an accessory. An empty label hides it from screen readers. */
 export function Vara({
   mood = "hungry",
   look,
@@ -18,8 +18,9 @@ export function Vara({
   return (
     <svg
       viewBox="0 0 150 180"
-      role="img"
-      aria-label={label}
+      {...(label
+        ? { role: "img", "aria-label": label }
+        : { "aria-hidden": true })}
       className={`vara vara-${mood} ${className}`}
     >
       <path

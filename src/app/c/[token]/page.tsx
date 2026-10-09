@@ -18,7 +18,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 export default async function CardPage({ params }: Props) {
-  const card = await loadCard((await params).token);
+  const { token } = await params;
+  const card = await loadCard(token);
 
   return (
     <main className="mx-auto max-w-[680px] px-4 pb-24 pt-10 sm:pt-16">
@@ -31,7 +32,7 @@ export default async function CardPage({ params }: Props) {
 
       {card ? (
         <div className="mt-14 space-y-8">
-          <CvCard card={card} />
+          <CvCard card={card} id={token} />
           <div className="flex flex-wrap items-center gap-x-6 gap-y-3">
             <HireButton role={card.role} />
             <Link href="/" className="text-sm underline underline-offset-4">

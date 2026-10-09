@@ -73,7 +73,7 @@ export async function POST(request: Request) {
   async function* events(): AsyncIterable<AppEvent> {
     yield {
       type: "status",
-      text: correction ? "Fixing that…" : "Writing the CV card…",
+      text: correction ? "Fixing that…" : "Writing down what I learned…",
     };
     let ok = false;
     let reason: string | undefined;
