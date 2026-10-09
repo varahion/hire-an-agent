@@ -134,3 +134,78 @@
     transition: none !important;
   }
 }
+
+/* Vara's stage: the orbit of tools, the hatch flash and sticky notes. */
+.vara-orbit {
+  position: absolute;
+  width: 280px;
+  height: 280px;
+  border-radius: 9999px;
+  border: 1px dashed var(--border);
+  animation: vara-spin 7s linear infinite;
+}
+.vara-tool {
+  position: absolute;
+  width: 46px;
+  height: 46px;
+  margin: -23px;
+  border-radius: 9999px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  display: grid;
+  place-items: center;
+}
+.vara-tool svg {
+  animation: vara-spin 7s linear infinite reverse;
+}
+.vara-tool:nth-child(1) { left: 50%; top: 0; }
+.vara-tool:nth-child(2) { left: 100%; top: 50%; }
+.vara-tool:nth-child(3) { left: 50%; top: 100%; }
+.vara-tool:nth-child(4) { left: 0; top: 50%; }
+.vara-flash {
+  position: absolute;
+  width: 60px;
+  height: 60px;
+  border-radius: 9999px;
+  border: 3px solid var(--accent);
+  opacity: 0;
+  pointer-events: none;
+  animation: vara-ring 0.7s ease-out;
+}
+.vara-note {
+  background: var(--note);
+  color: var(--note-ink);
+  border-radius: 3px;
+  padding: 16px 18px;
+}
+.vara-note input,
+.vara-note textarea {
+  width: 100%;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  outline: none;
+}
+.vara-note ::placeholder {
+  color: color-mix(in srgb, var(--note-ink) 55%, transparent);
+}
+.vara-note:focus-within {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+.vara-fly {
+  animation: vara-fly 0.7s cubic-bezier(0.5, 0, 0.75, 0) forwards;
+}
+.vara-pop {
+  animation: vara-pop 0.45s cubic-bezier(0.2, 1.4, 0.4, 1) both;
+}
+.vara-caret {
+  display: inline-block;
+  width: 2px;
+  height: 1em;
+  margin-left: 2px;
+  vertical-align: -2px;
+  background: var(--accent);
+  animation: vara-caret 1s steps(1) infinite;
+}
