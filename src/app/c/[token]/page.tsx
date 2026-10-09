@@ -2,18 +2,20 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { CvCard } from "@/components/cv-card";
 import { HireButton } from "@/components/hire-button";
+import { Vara } from "@/components/vara/vara";
 import { loadCard } from "@/lib/card";
+import { cardMeta } from "@/lib/card-display";
 
 type Props = { params: Promise<{ token: string }> };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const card = await loadCard((await params).token);
-  if (!card) return { title: "Card not found · Hire an Agent" };
-  const description = `${card.does[0]} Saves about ${card.hoursSavedPerWeek} hours a week.`;
+  if (!card) return { title: "Card not found · Vara by Varahion" };
+  const meta = cardMeta(card);
   return {
-    title: `${card.role} · Hire an Agent`,
-    description,
-    openGraph: { title: `${card.role}: an AI candidate's CV`, description },
+    title: meta.title,
+    description: meta.description,
+    openGraph: { title: meta.ogTitle, description: meta.description },
   };
 }
 
@@ -22,38 +24,42 @@ export default async function CardPage({ params }: Props) {
   const card = await loadCard(token);
 
   return (
-    <main className="mx-auto max-w-[680px] px-4 pb-24 pt-10 sm:pt-16">
-      <header className="flex items-baseline justify-between gap-4">
-        <Link href="/" className="font-semibold tracking-tight">
-          Hire an Agent
+    <main className="mx-auto max-w-[720px] px-4 pb-24">
+      <header className="flex items-baseline justify-between gap-3 py-5">
+        <Link href="/" className="font-display text-xl font-bold tracking-tight">
+          Vara
         </Link>
-        <p className="text-sm text-muted-foreground">A free tool by Varahion</p>
+        <p className="text-sm text-muted-foreground">by Varahion</p>
       </header>
 
       {card ? (
-        <div className="mt-14 space-y-8">
+        <div className="mt-8 space-y-6">
           <CvCard card={card} id={token} />
-          <div className="flex flex-wrap items-center gap-x-6 gap-y-3">
+          <div className="flex flex-wrap items-center justify-center gap-2.5">
             <HireButton role={card.role} />
-            <Link href="/" className="text-sm underline underline-offset-4">
-              Interview a candidate for your own job
+            <Link
+              href="/"
+              className="rounded-full border-[1.5px] border-foreground px-6 py-3 font-medium"
+            >
+              Teach Vara your own chore
             </Link>
           </div>
         </div>
       ) : (
-        <div className="mt-14 space-y-4">
-          <h1 className="text-3xl font-semibold tracking-tight">
+        <div className="mt-10 grid justify-items-center gap-4 text-center">
+          <Vara className="h-[120px] w-[100px]" label="" />
+          <h1 className="font-display text-3xl font-bold tracking-tight">
             This card isn&apos;t valid.
           </h1>
           <p className="text-muted-foreground">
-            The link may be incomplete or changed. You can run your own
-            interview instead.
+            The link may be incomplete or changed. You can teach Vara your own
+            chore instead.
           </p>
           <Link
             href="/"
-            className="inline-block bg-foreground px-5 py-3 font-medium text-background"
+            className="rounded-full bg-foreground px-6 py-3 font-medium text-background"
           >
-            Start an interview
+            Teach Vara a chore
           </Link>
         </div>
       )}

@@ -15,3 +15,17 @@ export function cardNumber(id: string): string {
   for (const char of id) hash = (hash * 31 + char.charCodeAt(0)) % 9000;
   return String(1000 + hash);
 }
+
+/** Page and share titles for a card's public page. */
+export function cardMeta(card: CardResult): {
+  title: string;
+  ogTitle: string;
+  description: string;
+} {
+  const vara = withCardDefaults(card);
+  return {
+    title: `${vara.name} · Vara by Varahion`,
+    ogTitle: `${vara.name}: ${vara.role}`,
+    description: `${vara.does[0]} Saves about ${vara.hoursSavedPerWeek} hours a week.`,
+  };
+}

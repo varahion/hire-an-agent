@@ -12,3 +12,12 @@ test("every look except other has an accessory", () => {
     if (look === "other") assert.equal(ACCESSORIES[look], null);
     else assert.ok(ACCESSORIES[look], look);
 });
+
+test("no accessory uses <text>, which the share image can't draw", async () => {
+  const { renderToStaticMarkup } = await import("react-dom/server");
+  const { createElement } = await import("react");
+  for (const look of VARA_LOOKS) {
+    const svg = renderToStaticMarkup(createElement("svg", null, ACCESSORIES[look]));
+    assert.equal(svg.includes("<text"), false, look);
+  }
+});

@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import test, { beforeEach } from "node:test";
 import { loadCard } from "../src/lib/card";
+import { cardMeta } from "../src/lib/card-display";
 import { signCard } from "../src/lib/signing";
 
 const card = {
@@ -33,4 +34,14 @@ test("loadCard returns null for a tampered token", async () => {
 test("loadCard returns null for garbage and URL-encoded junk", async () => {
   assert.equal(await loadCard("not-a-token"), null);
   assert.equal(await loadCard("%E0%A4%A"), null);
+});
+
+test("metadata uses the Vara name", () => {
+  const meta = cardMeta({ ...card, name: "Cake Vara", look: "orders" });
+  assert.equal(meta.title, "Cake Vara · Vara by Varahion");
+  assert.equal(meta.ogTitle, "Cake Vara: Cake order assistant");
+});
+
+test("an old card gets the fallback name", () => {
+  assert.equal(cardMeta(card).title, "Vara · Vara by Varahion");
 });

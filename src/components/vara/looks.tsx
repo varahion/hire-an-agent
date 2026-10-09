@@ -46,14 +46,14 @@ export const ACCESSORIES: Record<VaraLook, ReactNode | null> = {
       </g>
     </g>
   ),
-  // Appointment tag and scissors.
+  // Appointment tag (clock and lines) and scissors.
   bookings: (
     <g>
       <g transform="translate(46 26) rotate(-8)">
         <rect width="58" height="22" rx="4" fill={WHITE} stroke={INK} strokeWidth="2.5" />
-        <text x="29" y="16" textAnchor="middle" fontFamily="ui-monospace, Menlo, monospace" fontSize="12" fill={INK}>
-          SAT 11:00
-        </text>
+        {/* A tiny clock and two lines, drawn as shapes so the share image can render them. */}
+        <circle cx="12" cy="11" r="6" fill="none" stroke={INK} strokeWidth="2" />
+        <path d="M12 8v3l2 1.5M24 8h26M24 14h18" fill="none" stroke={INK} strokeWidth="2" strokeLinecap="round" />
       </g>
       <g transform="translate(18 120) rotate(-30)" fill="none" stroke={INK} strokeWidth="2.5">
         <circle cx="0" cy="0" r="6" />
@@ -67,9 +67,8 @@ export const ACCESSORIES: Record<VaraLook, ReactNode | null> = {
     <g>
       <g transform="translate(118 46)">
         <circle r="20" fill="#e8b93b" stroke={INK} strokeWidth="2.5" />
-        <text y="7" textAnchor="middle" fontWeight="700" fontSize="20" fill={INK}>
-          £
-        </text>
+        {/* A £ sign as a stroke, so the share image can render it. */}
+        <path d="M5 -6 Q3 -10 -1 -10 Q-5 -10 -5 -5 L-5 8 M-9 1 H3 M-9 8 H7" fill="none" stroke={INK} strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
       </g>
       <circle cx="94" cy="98" r="15" fill="none" stroke={INK} strokeWidth="2.5" />
     </g>
