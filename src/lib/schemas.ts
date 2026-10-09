@@ -34,8 +34,18 @@ export const cardResultSchema = z.object({
   humanDecides: z.array(z.string().max(120)).min(1).max(3),
   hoursSavedPerWeek: z.number().min(0.5).max(40),
   assumption: z.string().max(140),
-  name: z.string().min(1).max(24).optional(),
-  look: z.enum(VARA_LOOKS).optional(),
+  name: z
+    .string()
+    .min(1)
+    .max(24)
+    .optional()
+    .describe('A friendly name ending in "Vara", e.g. "Cake Vara".'),
+  look: z
+    .enum(VARA_LOOKS)
+    .optional()
+    .describe(
+      "What the work is about, not where it arrives. orders: customer orders (cakes, products), even by email. quotes: pricing jobs or call-outs. bookings: appointments. payments: invoices. inbox: other email. admin: forms, records, logins. other: anything else.",
+    ),
 });
 
 /** The owner's change to the card, from the double-check step. */

@@ -32,6 +32,9 @@ function stream(events: Ev[]) {
   };
 }
 
+// Messages the fake client was sent, newest last.
+const sent: string[] = [];
+
 // A fake eve client: create() answers the work turn, attach().send() answers the rest.
 function fakeClient(
   sendEvents: Ev[] = [
@@ -50,7 +53,12 @@ function fakeClient(
         };
       },
       attach() {
-        return { send: async () => stream(sendEvents) };
+        return {
+          send: async (message: string) => {
+            sent.push(message);
+            return stream(sendEvents);
+          },
+        };
       },
     },
   } as unknown as EveLike;
@@ -85,6 +93,7 @@ const sessionCookie = (asked = 0) =>
   `hire_session=${signSession({ sessionId: "wrun_test", asked, exp: Date.now() + 60_000 })}`;
 
 beforeEach(() => {
+  sent.length = 0;
   process.env.HIRE_SIGNING_SECRET = "route-test-secret";
   setLimitStoreForTests(memoryStore());
   setCardStoreForTests(memoryCardStore());
@@ -223,4 +232,35 @@ test("work reports offline when the agent can't be reached", async () => {
   setEveClientForTests(unreachable);
   const list = await events(await work(post("/api/work", job)));
   assert.equal(list.at(-1).code, "offline");
+});
+
+test("a correction is sent to the agent as data", async () => {
+  await (
+    await card(
+      post("/api/card", { correction: "Never offer discounts" }, sessionCookie(1)),
+    )
+  ).text();
+  assert.equal(JSON.parse(sent.at(-1)!).correction, "Never offer discounts");
+});
+
+test("a too-short correction is rejected", async () => {
+  const response = await card(
+    post("/api/card", { correction: "no" }, sessionCookie(1)),
+  );
+  assert.equal(response.status, 400);
+  assert.deepEqual(await response.json(), {
+    error: "Write the change in 3 to 200 characters.",
+  });
+  assert.equal(sent.length, 0);
+});
+
+test("a card with a correction is saved and loadable", async () => {
+  const list = await events(
+    await card(
+      post("/api/card", { correction: "Never offer discounts" }, sessionCookie(1)),
+    ),
+  );
+  const result = list.at(-1);
+  assert.equal(result.type, "result");
+  assert.deepEqual(await loadCard(result.shareToken), result.data);
 });
