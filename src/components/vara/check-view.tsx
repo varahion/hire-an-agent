@@ -1,6 +1,6 @@
 "use client";
 
-import { useId, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import type { CardResult } from "@/lib/schemas";
 
 type Props = {
@@ -34,13 +34,23 @@ export function CheckView({ card, previous, busy, fixesLeft, onConfirm, onFix }:
   const [fixing, setFixing] = useState(false);
   const [text, setText] = useState("");
   const fixId = useId();
+  const headingRef = useRef<HTMLHeadingElement>(null);
+
+  // After a fix, the form that had focus is gone: move focus to the new read-back.
+  useEffect(() => {
+    if (previous) headingRef.current?.focus();
+  }, [card, previous]);
 
   return (
     <section className="mx-auto grid max-w-[520px] gap-3.5">
       <div
         className={`rounded-xl border border-border bg-card px-4 py-3.5 transition-opacity ${busy ? "opacity-40" : ""}`}
       >
-        <h2 className="mb-2 font-display text-lg font-bold">
+        <h2
+          ref={headingRef}
+          tabIndex={-1}
+          className="mb-2 font-display text-lg font-bold outline-none"
+        >
           Here&apos;s the job as I understand it
         </h2>
         <p className="text-[13px] text-muted-foreground">I&apos;d do</p>
@@ -77,13 +87,23 @@ export function CheckView({ card, previous, busy, fixesLeft, onConfirm, onFix }:
               className="mt-1 resize-y leading-relaxed"
             />
           </div>
-          <div className="flex justify-center">
+          <div className="flex flex-wrap justify-center gap-2.5">
             <button
               type="submit"
               disabled={busy || text.trim().length < 3}
               className="rounded-full bg-foreground px-6 py-3 font-medium text-background disabled:opacity-40"
             >
               Send Vara back to fix it
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setText("");
+                setFixing(false);
+              }}
+              className="rounded-full border-[1.5px] border-foreground px-6 py-3 font-medium"
+            >
+              Never mind
             </button>
           </div>
         </form>

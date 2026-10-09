@@ -201,8 +201,8 @@ export default function Home() {
       );
       if (ok && correction) setFixesUsed((n) => n + 1);
       if (ok) {
+        // The stage's status line is a live region, so this is announced once.
         setStatus(correction ? "Fixed. Is it right now?" : "Vara is waiting for your OK");
-        setAnnouncement(correction ? "Vara fixed it." : "Vara's read-back is ready.");
       } else if (!before) setStage("ask");
     });
 
@@ -210,6 +210,7 @@ export default function Home() {
     run(async () => {
       if (!card) return;
       const vara = withCardDefaults(card.data);
+      setNotice(null);
       setHatching(true);
       setStatus("Something's happening…");
       if (!reduced) await new Promise((r) => window.setTimeout(r, 1100));
@@ -217,7 +218,6 @@ export default function Home() {
       setFlashKey((k) => k + 1);
       setStatus(`${vara.name} has hatched!`);
       setStage("hatched");
-      setAnnouncement(`${vara.name} has hatched.`);
     });
 
   const restart = () => {
