@@ -1,59 +1,66 @@
+import { cardNumber, withCardDefaults } from "@/lib/card-display";
 import type { CardResult } from "@/lib/schemas";
+import { Vara } from "./vara/vara";
 
-function List({ title, items }: { title: string; items: string[] }) {
+function Section({ title, items }: { title: string; items: string[] }) {
   return (
     <div>
-      <h3 className="text-sm font-medium text-muted-foreground">{title}</h3>
-      <ul className="mt-2 space-y-1.5">
+      <h3 className="mb-1 text-[13px] font-medium text-muted-foreground">
+        {title}
+      </h3>
+      <ul className="list-disc space-y-0.5 pl-4 text-sm leading-snug">
         {items.map((item) => (
-          <li key={item} className="flex gap-2 text-[15px] leading-snug">
-            <span
-              aria-hidden
-              className="mt-[0.55em] h-1 w-1 shrink-0 bg-foreground"
-            />
-            {item}
-          </li>
+          <li key={item}>{item}</li>
         ))}
       </ul>
     </div>
   );
 }
 
-/** The candidate's CV card. Shared by the interview page and the public card page. */
-export function CvCard({ card }: { card: CardResult }) {
+/** The hatched Vara's card. Shared by the page and the public card page. */
+export function CvCard({ card, id }: { card: CardResult; id: string }) {
+  const vara = withCardDefaults(card);
   return (
     <article
-      className="border border-foreground bg-background p-6 sm:p-8"
-      aria-label={`CV card: ${card.role}`}
+      className="vara-pop mx-auto max-w-[460px] rounded-[18px] border-[2.5px] border-accent-vermilion bg-card p-4"
+      aria-label={`Vara card: ${vara.name}, ${vara.role}`}
     >
-      <div className="flex items-start justify-between gap-6">
-        <div>
-          <p className="text-sm text-muted-foreground">Candidate for</p>
-          <h2 className="mt-1 text-2xl font-semibold tracking-tight sm:text-3xl">
-            {card.role}
-          </h2>
+      <div className="flex justify-between font-mono text-xs text-muted-foreground">
+        <span>Vara card</span>
+        <span>No. {cardNumber(id)}</span>
+      </div>
+      <div className="mt-2.5 flex items-center gap-3.5">
+        <div className="flex-none rounded-xl bg-vara-soft p-2">
+          <Vara look={vara.look} className="h-[100px] w-[84px]" label="" />
         </div>
-        <div className="text-right">
-          <p className="text-3xl font-semibold tabular-nums text-accent-vermilion sm:text-4xl">
-            {card.hoursSavedPerWeek}h
+        <div>
+          <h2 className="font-display text-[28px] font-bold leading-tight tracking-tight">
+            {vara.name}
+          </h2>
+          <p className="text-[13px] text-muted-foreground">
+            Candidate for {vara.role.toLowerCase()}
           </p>
-          <p className="text-sm text-muted-foreground">saved a week</p>
         </div>
       </div>
-      <div className="mt-8 grid gap-6 sm:grid-cols-2">
-        <List title="What I'd do" items={card.does} />
-        <List title="What I'd need" items={card.needs} />
-        <List title="What stays with you" items={card.humanDecides} />
+      <p className="mt-3 flex items-baseline gap-2">
+        <b className="font-display text-[40px] leading-none text-accent-vermilion">
+          {vara.hoursSavedPerWeek}h
+        </b>
+        <span className="text-sm text-muted-foreground">saved a week</span>
+      </p>
+      <div className="mt-3.5 grid gap-3 sm:grid-cols-2">
+        <Section title="What I'd do" items={vara.does} />
+        <Section title="What I'd need" items={vara.needs} />
+        <Section title="What stays with you" items={vara.humanDecides} />
         <div>
-          <h3 className="text-sm font-medium text-muted-foreground">
+          <h3 className="mb-1 text-[13px] font-medium text-muted-foreground">
             How I estimated it
           </h3>
-          <p className="mt-2 text-[15px] leading-snug">{card.assumption}</p>
+          <p className="text-sm leading-snug">{vara.assumption}</p>
         </div>
       </div>
-      <p className="mt-8 border-t border-border pt-4 text-sm text-muted-foreground">
-        Interviewed with Hire an Agent by Varahion. Nothing was sent or
-        connected.
+      <p className="mt-3.5 border-t border-border pt-2.5 text-xs text-muted-foreground">
+        Hatched with Vara by Varahion. Nothing was sent or connected.
       </p>
     </article>
   );

@@ -39,7 +39,7 @@ export function CardView({
       const url = URL.createObjectURL(await response.blob());
       const a = document.createElement("a");
       a.href = url;
-      a.download = "hire-an-agent-card.png";
+      a.download = "vara-card.png";
       a.click();
       window.setTimeout(() => URL.revokeObjectURL(url), 10_000);
     } catch {
@@ -52,14 +52,14 @@ export function CardView({
   return (
     <section className="space-y-6">
       <div ref={focusRef} tabIndex={-1} className="outline-none">
-        <CvCard card={card} />
+        <CvCard card={card} id={shareToken} />
       </div>
-      <div className="flex flex-wrap items-center gap-3">
+      <div className="flex flex-wrap items-center justify-center gap-2.5">
         <HireButton role={card.role} />
         <button
           type="button"
           onClick={copy}
-          className="border border-foreground px-4 py-3 text-sm font-medium"
+          className="rounded-full border-[1.5px] border-foreground px-5 py-3 font-medium"
         >
           {copied ? "Link copied" : "Copy link"}
         </button>
@@ -67,7 +67,7 @@ export function CardView({
           type="button"
           onClick={download}
           disabled={saving}
-          className="border border-foreground px-4 py-3 text-sm font-medium disabled:opacity-40"
+          className="rounded-full border-[1.5px] border-foreground px-5 py-3 font-medium disabled:opacity-40"
         >
           {saving ? "Saving…" : "Download image"}
         </button>
@@ -75,13 +75,15 @@ export function CardView({
       <p aria-live="polite" className="sr-only">
         {copied ? "Link copied to the clipboard." : ""}
       </p>
-      <button
-        type="button"
-        onClick={onRestart}
-        className="text-sm underline underline-offset-4"
-      >
-        Interview a candidate for another job
-      </button>
+      <div className="flex justify-center">
+        <button
+          type="button"
+          onClick={onRestart}
+          className="rounded-full border-[1.5px] border-foreground px-6 py-3 font-medium"
+        >
+          Teach Vara another chore
+        </button>
+      </div>
     </section>
   );
 }

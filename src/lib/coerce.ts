@@ -1,4 +1,5 @@
 import {
+  VARA_LOOKS,
   cardResultSchema,
   workResultSchema,
   type CardResult,
@@ -37,6 +38,8 @@ export function coerceCard(raw: unknown): CardResult | null {
       ? Math.min(40, Math.max(0.5, hours))
       : NaN,
     assumption: text(raw.assumption, 140),
+    ...(text(raw.name, 24) ? { name: text(raw.name, 24) } : {}),
+    ...(VARA_LOOKS.includes(raw.look as never) ? { look: raw.look } : {}),
   };
   const parsed = cardResultSchema.safeParse(candidate);
   return parsed.success ? parsed.data : null;

@@ -1,0 +1,590 @@
+<title>Vara mockup</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Geist:wght@400;500&family=Geist+Mono:wght@400&display=swap">
+<style>
+/* Layout: one centred stage where Vara lives; the chore note, the work and the hatched card take turns in it. */
+:root {
+  --paper: #f7f7f2;
+  --ink: #20211f;
+  --muted: #62635c;
+  --line: #d6d6cc;
+  --vara: oklch(0.62 0.22 25);
+  --vara-deep: oklch(0.45 0.17 27);
+  --vara-soft: oklch(0.93 0.04 30);
+  --note: #fbe9a6;
+  --note-ink: #4a3a07;
+  --card: #ffffff;
+  --display: "Bricolage Grotesque", "Avenir Next", system-ui, sans-serif;
+  --body: "Geist", system-ui, -apple-system, sans-serif;
+  --mono: "Geist Mono", ui-monospace, Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #171714; --ink: #f1f0ea; --muted: #a6a59c; --line: #34342f;
+    --vara: oklch(0.68 0.2 28); --vara-deep: oklch(0.82 0.1 32); --vara-soft: oklch(0.3 0.06 28);
+    --note: #4a3f18; --note-ink: #f6e7b0; --card: #22221e; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #171714; --ink: #f1f0ea; --muted: #a6a59c; --line: #34342f;
+  --vara: oklch(0.68 0.2 28); --vara-deep: oklch(0.82 0.1 32); --vara-soft: oklch(0.3 0.06 28);
+  --note: #4a3f18; --note-ink: #f6e7b0; --card: #22221e; color-scheme: dark;
+}
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+body { background: var(--paper); color: var(--ink); font-family: var(--body); font-size: 16px; line-height: 1.55; padding-inline: 16px; padding-block: 0 48px; }
+.wrap { max-width: 720px; margin: 0 auto; }
+header { display: flex; justify-content: space-between; align-items: baseline; padding-block: 20px; gap: 12px; }
+.brand { font-family: var(--display); font-weight: 700; font-size: 20px; letter-spacing: -0.01em; }
+.by { color: var(--muted); font-size: 14px; }
+.demo-tag { display: inline-block; font-family: var(--mono); font-size: 12px; color: var(--muted); border: 1px dashed var(--line); border-radius: 999px; padding: 2px 10px; }
+h1 { font-family: var(--display); font-weight: 700; font-size: clamp(34px, 7vw, 58px); line-height: 1.02; letter-spacing: -0.02em; text-align: center; text-wrap: balance; margin: 28px auto 12px; max-width: 14ch; }
+.lede { text-align: center; color: var(--muted); max-width: 46ch; margin: 0 auto 8px; text-wrap: balance; }
+.steps { display: flex; justify-content: center; gap: 8px 22px; flex-wrap: wrap; margin: 18px 0 8px; font-size: 14px; color: var(--muted); }
+.steps span[aria-current="step"] { color: var(--ink); font-weight: 500; }
+
+.stage { position: relative; min-height: 300px; display: grid; place-items: center; margin-top: 8px; }
+.orbit { position: absolute; width: 280px; height: 280px; border-radius: 50%; border: 1px dashed var(--line); opacity: 0; transition: opacity .4s; }
+.orbit.on { opacity: 1; animation: spin 7s linear infinite; }
+.orbit .tool { position: absolute; width: 46px; height: 46px; margin: -23px; border-radius: 50%; background: var(--card); border: 1px solid var(--line); display: grid; place-items: center; color: var(--ink); }
+.orbit .tool svg { width: 22px; height: 22px; animation: spin 7s linear infinite reverse; }
+.orbit .tool:nth-child(1) { left: 50%; top: 0; } .orbit .tool:nth-child(2) { left: 100%; top: 50%; }
+.orbit .tool:nth-child(3) { left: 50%; top: 100%; } .orbit .tool:nth-child(4) { left: 0; top: 50%; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+#vara { width: 150px; height: 180px; transition: transform .3s; cursor: default; }
+#vara .body { fill: var(--vara); }
+#vara .eye { fill: var(--paper); transform-box: fill-box; transform-origin: center; animation: blink 4.2s infinite; }
+#vara .cheek { fill: var(--vara-deep); opacity: .25; }
+#vara.hungry { animation: bob 2.4s ease-in-out infinite; }
+#vara.working { animation: wobble .5s ease-in-out infinite; }
+#vara.working .eye { animation: none; transform: scaleY(.3); }
+#vara.cracking { animation: shake .12s linear infinite; }
+@keyframes blink { 0%, 92%, 100% { transform: scaleY(1); } 95% { transform: scaleY(.1); } }
+@keyframes bob { 50% { transform: translateY(-8px); } }
+@keyframes wobble { 0%, 100% { transform: rotate(-5deg); } 50% { transform: rotate(5deg); } }
+@keyframes shake { 0% { transform: translateX(-3px) rotate(-2deg); } 50% { transform: translateX(3px) rotate(2deg); } 100% { transform: translateX(-3px); } }
+.flash { position: absolute; width: 60px; height: 60px; border-radius: 50%; border: 3px solid var(--vara); opacity: 0; pointer-events: none; }
+.flash.go { animation: ring .7s ease-out; }
+@keyframes ring { from { opacity: 1; transform: scale(.6); } to { opacity: 0; transform: scale(5); } }
+
+.status { text-align: center; font-family: var(--mono); font-size: 14px; color: var(--vara-deep); min-height: 22px; margin: 6px 0 14px; }
+
+.panel { max-width: 520px; margin: 0 auto; display: grid; gap: 14px; }
+.note { background: var(--note); color: var(--note-ink); border-radius: 3px; padding: 16px 18px; transform: rotate(-1.2deg); }
+.note label { display: block; font-family: var(--display); font-weight: 500; font-size: 15px; margin-bottom: 6px; }
+.note textarea { width: 100%; min-height: 96px; resize: vertical; border: 0; background: transparent; color: inherit; font: inherit; font-size: 16px; line-height: 1.5; outline: none; }
+.note textarea::placeholder { color: color-mix(in srgb, var(--note-ink) 55%, transparent); }
+.note.fly { animation: fly .7s cubic-bezier(.5,0,.75,0) forwards; }
+@keyframes fly { to { transform: translateY(-230px) scale(.15) rotate(25deg); opacity: 0; } }
+.starters { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
+.starters p { width: 100%; text-align: center; margin: 0; font-size: 13px; color: var(--muted); }
+.starter { font: inherit; font-size: 14px; background: var(--note); color: var(--note-ink); border: 0; border-radius: 3px; padding: 7px 12px; cursor: pointer; transform: rotate(var(--r, 0deg)); transition: transform .15s; }
+.starter:hover { transform: rotate(0) translateY(-2px); }
+.btn { font: inherit; font-weight: 500; border-radius: 999px; padding: 12px 22px; cursor: pointer; border: 1.5px solid var(--ink); background: transparent; color: var(--ink); }
+.btn.primary { background: var(--ink); color: var(--paper); }
+.btn:focus-visible, .starter:focus-visible, textarea:focus-visible { outline: 2px solid var(--vara); outline-offset: 3px; }
+.center { display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; }
+.err { text-align: center; color: var(--vara-deep); font-size: 14px; min-height: 20px; margin: 0; }
+
+.attempt { background: var(--note); color: var(--note-ink); border-radius: 3px; padding: 16px 18px; transform: rotate(.8deg); }
+.attempt b { font-family: var(--display); font-weight: 700; display: block; margin-bottom: 4px; }
+.caret { display: inline-block; width: 2px; height: 1em; background: var(--vara); vertical-align: -2px; animation: caret 1s steps(1) infinite; }
+@keyframes caret { 50% { opacity: 0; } }
+
+.vcard { max-width: 340px; margin: 0 auto; background: var(--card); border: 2.5px solid var(--vara); border-radius: 18px; padding: 16px; animation: pop .45s cubic-bezier(.2,1.4,.4,1); }
+@keyframes pop { from { transform: scale(.8) rotate(-3deg); opacity: 0; } }
+.vcard .top { display: flex; justify-content: space-between; font-family: var(--mono); font-size: 12px; color: var(--muted); }
+.vcard .portrait { background: var(--vara-soft); border-radius: 12px; margin: 10px 0 12px; display: grid; place-items: center; padding: 14px 0 6px; }
+.vcard .portrait svg { width: 120px; height: 144px; }
+.vcard h2 { font-family: var(--display); font-weight: 700; font-size: 28px; letter-spacing: -0.01em; margin: 0; }
+.vcard .tag { margin: 2px 0 14px; color: var(--muted); font-size: 15px; }
+.stats { display: grid; gap: 8px; font-size: 14px; }
+.stats div { display: flex; justify-content: space-between; gap: 12px; border-top: 1px solid var(--line); padding-top: 8px; }
+.stats dt { color: var(--muted); }
+.stats dd { margin: 0; text-align: right; }
+.stats .big { color: var(--vara-deep); font-weight: 500; }
+.honest { text-align: center; font-size: 13px; color: var(--muted); max-width: 44ch; margin: 0 auto; }
+.toast { text-align: center; font-size: 14px; color: var(--vara-deep); min-height: 20px; margin: 0; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+}
+
+.q { font-family: var(--display); font-weight: 500; font-size: 20px; text-align: center; margin: 0; text-wrap: balance; }
+.hint { text-align: center; color: var(--muted); font-size: 14px; margin: -6px 0 0; }
+.oneline { width: 100%; border: 0; background: transparent; color: inherit; font: inherit; font-size: 18px; outline: none; }
+.steplist { list-style: none; padding: 0; margin: 0; display: grid; gap: 6px; font-size: 15px; }
+.steplist li { display: flex; gap: 10px; align-items: baseline; opacity: .35; transition: opacity .3s; }
+.steplist li.done, .steplist li.now { opacity: 1; }
+.steplist li::before { content: "○"; font-family: var(--mono); color: var(--muted); }
+.steplist li.now::before { content: "◐"; color: var(--vara); }
+.steplist li.done::before { content: "●"; color: var(--vara); }
+.box { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px; }
+.chat { display: grid; gap: 10px; }
+.chat .you { justify-self: end; background: var(--ink); color: var(--paper); border-radius: 14px 14px 4px 14px; padding: 8px 12px; max-width: 85%; font-size: 15px; }
+.chat .va { display: flex; gap: 8px; align-items: flex-start; max-width: 92%; }
+.chat .va i { flex: none; width: 22px; height: 26px; border-radius: 50% 50% 46% 46%; background: var(--vara); margin-top: 2px; }
+.chat .va span { background: var(--vara-soft); border-radius: 14px 14px 14px 4px; padding: 8px 12px; font-size: 15px; }
+.askrow { display: flex; gap: 8px; }
+.askrow input { flex: 1; min-width: 0; font: inherit; font-size: 16px; padding: 10px 14px; border-radius: 999px; border: 1.5px solid var(--line); background: var(--card); color: var(--ink); }
+.askrow input:focus-visible { outline: 2px solid var(--vara); outline-offset: 2px; }
+.left { font-size: 13px; color: var(--muted); text-align: center; margin: 0; }
+.check h3 { font-family: var(--display); font-size: 18px; margin: 0 0 8px; }
+.check ul { margin: 0 0 10px; padding-left: 20px; }
+.check li.new { color: var(--vara-deep); font-weight: 500; }
+.check .lbl { font-size: 13px; color: var(--muted); margin: 8px 0 2px; }
+
+.field { display: grid; gap: 4px; }
+.row2 { display: flex; justify-content: space-between; align-items: baseline; }
+.count { font-family: var(--mono); font-size: 12px; opacity: .7; }
+.privacy { font-size: 13px; color: var(--muted); text-align: center; max-width: 52ch; margin: 0 auto; }
+.jobline { text-align: center; font-size: 14px; color: var(--muted); margin: 0; }
+.jobline b { color: var(--ink); font-weight: 500; }
+.two { display: grid; gap: 14px; }
+@media (min-width: 560px) { .two { grid-template-columns: 1fr 1fr; } }
+.box h3, .draftnote b { font-family: var(--display); font-weight: 700; font-size: 17px; margin: 0 0 6px; display: block; }
+.box ul { margin: 0; padding-left: 18px; font-size: 15px; display: grid; gap: 4px; }
+.box.miss li { color: var(--vara-deep); }
+.draftnote { background: var(--note); color: var(--note-ink); border-radius: 3px; padding: 16px 18px; transform: rotate(-.6deg); }
+.draftnote p { white-space: pre-wrap; margin: 0; line-height: 1.55; }
+.sent { text-align: center; font-size: 13px; color: var(--muted); margin: -4px 0 0; }
+.reveal { animation: pop .4s cubic-bezier(.2,1.2,.4,1) both; }
+.vcard { max-width: 460px; }
+.vcard:focus { outline: none; }
+.vcard .head { display: flex; gap: 14px; align-items: center; }
+.vcard .portrait { margin: 0; padding: 8px; flex: none; }
+.vcard .portrait svg { width: 84px; height: 100px; }
+.vcard .for { font-size: 13px; color: var(--muted); margin: 0; }
+.vcard .hours { margin: 12px 0 0; display: flex; align-items: baseline; gap: 8px; }
+.vcard .hours b { font-family: var(--display); font-size: 40px; line-height: 1; color: var(--vara); }
+.vcard .hours span { color: var(--muted); font-size: 14px; }
+.cvgrid { display: grid; gap: 12px; margin-top: 14px; }
+@media (min-width: 480px) { .cvgrid { grid-template-columns: 1fr 1fr; } }
+.cvgrid h4 { font-size: 13px; color: var(--muted); font-weight: 500; margin: 0 0 4px; }
+.cvgrid ul { margin: 0; padding-left: 16px; font-size: 14px; display: grid; gap: 3px; }
+.cvgrid p { margin: 0; font-size: 14px; }
+.cvfoot { margin: 14px 0 0; border-top: 1px solid var(--line); padding-top: 10px; font-size: 12px; color: var(--muted); }
+.check li.new { color: var(--vara-deep); font-weight: 500; }
+</style>
+
+<div class="wrap">
+  <header>
+    <span class="brand">Vara</span>
+    <span class="by">by Varahion · <span class="demo-tag">mockup with sample data</span></span>
+  </header>
+
+  <h1 id="headline">Teach Vara a chore. Watch it hatch a helper.</h1>
+  <p class="lede" id="lede">Tell Vara a job you repeat every week, show it one real example, and watch it do the job. Then ask it anything and keep its card.</p>
+  <div class="steps" aria-label="Progress">
+    <span data-s="1" aria-current="step">Your chore</span>
+    <span data-s="2">Vara tries it</span>
+    <span data-s="3">Ask Vara</span>
+    <span data-s="4">Double-check</span>
+    <span data-s="5">Your Vara</span>
+  </div>
+
+  <div class="stage">
+    <div class="orbit" id="orbit" aria-hidden="true"></div>
+    <div class="flash" id="flash" aria-hidden="true"></div>
+    <svg id="vara" class="hungry" viewBox="0 0 150 180" role="img" aria-label="Vara, a small round creature">
+      <path class="body" d="M75 8 C118 8 142 62 142 108 C142 150 112 172 75 172 C38 172 8 150 8 108 C8 62 32 8 75 8 Z"/>
+      <ellipse class="cheek" cx="42" cy="122" rx="12" ry="7"/>
+      <ellipse class="cheek" cx="108" cy="122" rx="12" ry="7"/>
+      <ellipse class="eye" cx="56" cy="98" rx="9" ry="11"/>
+      <ellipse class="eye" cx="94" cy="98" rx="9" ry="11"/>
+      <g id="vara-acc"></g>
+    </svg>
+  </div>
+  <p class="status" id="status" aria-live="polite">Vara is hungry for a chore</p>
+
+  <!-- 1. Chore + one real example -->
+  <form class="panel" id="p1">
+    <div class="starters">
+      <p>Try a sample</p>
+      <button type="button" class="starter" style="--r:-2deg" data-chore="cake">Cake orders</button>
+      <button type="button" class="starter" style="--r:1.5deg" data-chore="plumber">Plumbing call-outs</button>
+      <button type="button" class="starter" style="--r:-1deg" data-chore="salon">Salon bookings</button>
+    </div>
+    <div class="note field">
+      <div class="row2"><label for="job">The chore</label><span class="count" id="jobCount">0/200</span></div>
+      <input class="oneline" id="job" maxlength="200" autocomplete="off" placeholder="Replies to cake orders every morning">
+    </div>
+    <div class="note field" id="noteBox" style="transform:rotate(.8deg)">
+      <div class="row2"><label for="example">One real example</label><span class="count" id="exCount">0/3000</span></div>
+      <textarea id="example" maxlength="3000" placeholder="Hi! Could I order a chocolate cake for about 20 people this Saturday? It's for my daughter's birthday. Thanks, Priya"></textarea>
+    </div>
+    <p class="privacy">Your example is only used to run this session. We don't read, share or keep it. The session closes after an hour.</p>
+    <p class="err" id="err1"></p>
+    <div class="center"><button class="btn primary" type="submit">Feed it to Vara</button></div>
+  </form>
+
+  <!-- 2. Vara tries it -->
+  <section class="panel" id="p2" hidden>
+    <p class="jobline">The chore: <b id="jobShow"></b></p>
+    <div id="result" hidden class="panel">
+      <div class="two">
+        <div class="box reveal"><h3>What I understood</h3><ul id="understood"></ul></div>
+        <div class="box miss reveal" style="animation-delay:.3s"><h3>What's missing</h3><ul id="missing"></ul></div>
+      </div>
+      <div class="draftnote reveal" style="animation-delay:.6s"><b>My draft, for your approval</b><p><span id="draftText"></span><span class="caret" id="caret"></span></p></div>
+      <p class="sent">Nothing has been sent. You decide what goes out.</p>
+      <p class="honest" id="pickedNote" hidden>This mockup matched your chore to the closest sample. The real Vara works on exactly what you paste.</p>
+      <div class="center" id="go2row" hidden><button class="btn primary" id="go2">Next: ask Vara anything</button></div>
+    </div>
+  </section>
+
+  <!-- 3. Ask Vara -->
+  <section class="panel" id="p3" hidden>
+    <div class="chat box" id="chat"></div>
+    <div class="starters" id="suggest"></div>
+    <form class="askrow" id="askForm">
+      <label for="ask" hidden>Your own question</label>
+      <input id="ask" maxlength="300" autocomplete="off" placeholder="Or ask your own question">
+      <button class="btn" type="submit">Ask</button>
+    </form>
+    <p class="left" id="left"></p>
+    <div class="center"><button class="btn primary" id="go3">Done asking, double-check it</button></div>
+  </section>
+
+  <!-- 4. Double-check -->
+  <section class="panel" id="p4" hidden>
+    <div class="check box" id="check"></div>
+    <div class="center" id="checkBtns">
+      <button class="btn primary" id="yes">Yes, hatch my Vara</button>
+      <button class="btn" id="fixOpen">Change something</button>
+    </div>
+    <form class="panel" id="fixForm" hidden>
+      <div class="note"><label for="fix">What should Vara change?</label><textarea id="fix" placeholder="Never offer a discount without asking me"></textarea></div>
+      <div class="center"><button class="btn primary" type="submit">Send Vara back to fix it</button></div>
+    </form>
+  </section>
+
+  <!-- 5. Card -->
+  <section class="panel" id="p5" hidden>
+    <article class="vcard" id="vcard" tabindex="-1">
+      <div class="top"><span>Vara card</span><span id="cardNo"></span></div>
+      <div class="head" style="margin-top:10px">
+        <div class="portrait" id="portrait"></div>
+        <div>
+          <h2 id="cardName"></h2>
+          <p class="for">Candidate for <span id="cardRole"></span></p>
+        </div>
+      </div>
+      <p class="hours"><b id="cardHours"></b><span>saved a week</span></p>
+      <div class="cvgrid">
+        <div><h4>What I'd do</h4><ul id="cDoes"></ul></div>
+        <div><h4>What I'd need</h4><ul id="cNeeds"></ul></div>
+        <div><h4>What stays with you</h4><ul id="cHuman"></ul></div>
+        <div><h4>How I estimated it</h4><p id="cAssume"></p></div>
+      </div>
+      <p class="cvfoot">Hatched with Vara by Varahion. Nothing was sent or connected.</p>
+    </article>
+    <div class="center">
+      <button class="btn primary" id="hireBtn">Hire this Vara for real</button>
+      <button class="btn" id="copyBtn">Copy link</button>
+      <button class="btn" id="dlBtn">Download image</button>
+    </div>
+    <p class="toast" id="toast"></p>
+    <div class="center"><button class="btn" id="againBtn">Teach Vara another chore</button></div>
+  </section>
+</div>
+
+<script>
+const ICON = {
+  qr: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><path d="M14 14h3v3h-3zM20 14v.01M14 20h.01M17 20h4v-3"/></svg>',
+  car: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 16v-4l2-5h12l2 5v4z"/><circle cx="7.5" cy="16.5" r="1.8"/><circle cx="16.5" cy="16.5" r="1.8"/></svg>',
+  camera: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg>',
+  clock: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="8.5"/><path d="M12 7v5l3 2"/></svg>',
+  mail: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="5" width="18" height="14" rx="1"/><path d="M3 7l9 6 9-6"/></svg>',
+  calendar: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3.5" y="5" width="17" height="15" rx="1"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg>',
+  coin: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="8.5"/><path d="M14.5 9a2.5 2.5 0 0 0-2.5-1.5c-1.5 0-2.5.8-2.5 2s1 1.7 2.5 2 2.5.9 2.5 2.1-1.1 2-2.5 2A2.6 2.6 0 0 1 9.5 15M12 6v1.5M12 16.5V18"/></svg>',
+  doc: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 3h8l4 4v14H6z"/><path d="M9 12h6M9 16h6"/></svg>',
+  user: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="8" r="3.5"/><path d="M5 20c1-4 4-5.5 7-5.5s6 1.5 7 5.5"/></svg>',
+  bell: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 16V11a6 6 0 0 1 12 0v5l2 2H4z"/><path d="M10 20a2 2 0 0 0 4 0"/></svg>',
+};
+
+/* Accessories drawn on Vara for each chore. Coordinates match the 150x180 Vara body. */
+
+ICON.wrench = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14.5 6.5a4 4 0 0 0 5 5L12 19a2.1 2.1 0 0 1-3-3l7.5-7.5a4 4 0 0 1-2-2z"/></svg>';
+ICON.drop = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3s6 7 6 11a6 6 0 0 1-12 0c0-4 6-11 6-11z"/></svg>';
+
+/* What each Vara wears once it hatches. Coordinates match the 150x180 Vara body. */
+const ACC = {
+  cake: '<path d="M44 40 Q75 -2 106 40 Z" fill="#ffffff" stroke="#20211f" stroke-width="2.5"/><rect x="40" y="36" width="70" height="10" rx="3" fill="#ffffff" stroke="#20211f" stroke-width="2.5"/><circle cx="75" cy="12" r="6" fill="#e05a7a" stroke="#20211f" stroke-width="2"/>',
+  plumber: '<path d="M32 44 Q75 6 118 44 Z" fill="#2f6fd6" stroke="#20211f" stroke-width="2.5"/><rect x="104" y="38" width="34" height="9" rx="4" fill="#2f6fd6" stroke="#20211f" stroke-width="2"/><g transform="translate(112 118) rotate(35)"><rect x="-4" y="0" width="8" height="40" rx="3" fill="#ffffff" stroke="#20211f" stroke-width="2.5"/><circle cx="0" cy="-2" r="10" fill="#ffffff" stroke="#20211f" stroke-width="2.5"/><rect x="-4" y="-14" width="8" height="10" fill="var(--vara)"/></g>',
+  salon: '<g transform="translate(46 26) rotate(-8)"><rect width="58" height="22" rx="4" fill="#ffffff" stroke="#20211f" stroke-width="2.5"/><text x="29" y="16" text-anchor="middle" font-family="var(--mono)" font-size="12" fill="#20211f">SAT 11:00</text></g><g transform="translate(18 120) rotate(-30)" fill="none" stroke="#20211f" stroke-width="2.5"><circle cx="0" cy="0" r="6"/><circle cx="14" cy="0" r="6"/><path d="M4 -4 L22 -26 M10 -4 L-8 -26"/></g>',
+};
+
+const SAMPLES = {
+  cake: {
+    name: "Cake Vara",
+    job: "Replies to cake orders every morning",
+    example: "Hi! Could I order a chocolate cake for about 20 people this Saturday? It's for my daughter's birthday. Thanks, Priya",
+    icons: ["mail", "user", "doc", "clock"],
+    status: ["Reading your example…", "Working out what Priya wants…", "Checking what's missing…", "Drafting a reply…"],
+    understood: ["Priya wants a chocolate cake", "It feeds about 20 people", "She needs it this Saturday", "It's for her daughter's birthday"],
+    missing: ["Pickup or delivery, and what time", "Any allergies", "Writing on the cake"],
+    draft: "Hi Priya,\n\nThank you, we'd love to make your daughter's birthday cake! A chocolate cake for about 20 people is £65.\n\nTo book it in for Saturday, could you let me know:\n- Pickup or delivery, and what time suits you\n- Any allergies we should know about\n- Any message you'd like on the cake\n\nThanks,\nThe Bake House",
+    answers: {
+      "What would you need access to?": "Your order inbox, so I can read new enquiries, and your price list, so the prices I draft are right. Not your bank, your website or your customer list.",
+      "What wouldn't you do without me?": "I wouldn't send anything. Every reply waits for you to approve. I also wouldn't promise a date, offer a discount or change a price on my own.",
+      "How would you handle a tricky case?": "If someone asks for something you've never made, like a five-tier cake by tomorrow, I'd draft a polite holding reply and flag it at the top of your list.",
+    },
+    card: {
+      role: "Cake order assistant", hours: 3,
+      does: ["Reads new cake order enquiries", "Works out what's missing and asks for it", "Drafts a reply with the right price"],
+      needs: ["Your order inbox", "Your price list"],
+      human: ["Sending every reply", "Discounts and special requests", "Confirming dates"],
+      assumption: "About 6 enquiries a day at 5 minutes each, 6 days a week.",
+    },
+  },
+  plumber: {
+    name: "Call-out Vara",
+    job: "Quotes for boiler and leak call-outs",
+    example: "Hello, our boiler is making a banging noise and the radiators upstairs are cold. We're in SE15. Can someone come this week? Mark",
+    icons: ["wrench", "drop", "calendar", "doc"],
+    status: ["Reading your example…", "Spotting the problem…", "Checking what's missing…", "Drafting a reply…"],
+    understood: ["Boiler is banging", "Upstairs radiators are cold", "Mark is in SE15", "He wants a visit this week"],
+    missing: ["Boiler make and age", "Best day and time", "Phone number"],
+    draft: "Hi Mark,\n\nSorry to hear about the boiler. Banging and cold radiators often mean air or sludge in the system, which we fix all the time.\n\nA diagnostic visit in SE15 is £85, taken off the repair if you go ahead. We have Wednesday and Thursday mornings free.\n\nCould you send the boiler make and age, the best day for you, and a phone number?\n\nThanks,\nSE Heat & Plumbing",
+    answers: {
+      "What would you need access to?": "Your enquiries inbox, your call-out prices and your diary, so I only offer slots you really have free.",
+      "What wouldn't you do without me?": "I wouldn't book a visit or quote for a repair. I only draft the reply and the diagnostic price. You confirm everything.",
+      "How would you handle a tricky case?": "If it sounds dangerous, like a gas smell, I'd tell the customer to call the gas emergency line right away and flag it to you.",
+    },
+    card: {
+      role: "Call-out quote assistant", hours: 4,
+      does: ["Reads new call-out requests", "Asks for the details you need to quote", "Drafts a reply with your price and free slots"],
+      needs: ["Your enquiries inbox", "Your price list", "Your diary"],
+      human: ["Booking visits", "Repair quotes", "Anything that sounds unsafe"],
+      assumption: "About 8 requests a day at 6 minutes each, 5 days a week.",
+    },
+  },
+  salon: {
+    name: "Booking Vara",
+    job: "Books clients in from Instagram messages",
+    example: "hi do you have anything free saturday for a full balayage? shoulder length hair, coloured 4 months ago x",
+    icons: ["calendar", "user", "clock", "bell"],
+    status: ["Reading your example…", "Working out the service…", "Checking Saturday…", "Drafting a reply…"],
+    understood: ["Wants a full balayage", "Shoulder-length hair", "Last coloured 4 months ago", "Hoping for Saturday"],
+    missing: ["Whether they've had a patch test with you", "Preferred time on Saturday", "Their name"],
+    draft: "Hi lovely!\n\nWe'd love to do your balayage. For shoulder-length hair it takes about 3 hours and starts from £140.\n\nSaturday at 11:00 is free. If you're new to us, you'll need a quick patch test at least 48 hours before.\n\nShall I pop you in? Just send your name and I'll hold it for you x",
+    answers: {
+      "What would you need access to?": "Your Instagram messages, your booking calendar and your price list. Nothing else.",
+      "What wouldn't you do without me?": "I wouldn't confirm a booking or take a deposit. I'd hold the slot and wait for your OK.",
+      "How would you handle a tricky case?": "If a client asks for a colour correction, I'd suggest a free consultation first instead of quoting, and flag it to you.",
+    },
+    card: {
+      role: "Salon booking assistant", hours: 5,
+      does: ["Reads booking messages", "Finds free slots that fit the service", "Drafts a reply with the price and patch test rule"],
+      needs: ["Your Instagram messages", "Your booking calendar", "Your price list"],
+      human: ["Confirming bookings", "Deposits and refunds", "Colour corrections"],
+      assumption: "About 10 messages a day at 5 minutes each, 6 days a week.",
+    },
+  },
+};
+const SUGGESTED = ["What would you need access to?", "What wouldn't you do without me?", "How would you handle a tricky case?"];
+const FALLBACK = "Good question. The real Vara answers that about your exact job. The short version: I draft, and you decide what happens.";
+
+const $ = (id) => document.getElementById(id);
+const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
+const wait = (ms) => new Promise((r) => setTimeout(r, reduced ? 0 : ms));
+let key = "cake", typed = false, asked = [], busy = false, fixes = [];
+const li = (xs) => xs.map((x) => { const e = document.createElement("li"); e.textContent = x; return e.outerHTML; }).join("");
+
+function show(n) {
+  for (let i = 1; i <= 5; i++) $("p" + i).hidden = i !== n;
+  document.querySelectorAll(".steps span").forEach((s) =>
+    Number(s.dataset.s) === n ? s.setAttribute("aria-current", "step") : s.removeAttribute("aria-current"));
+}
+function mood(m) { $("vara").setAttribute("class", m); }
+function say(t) { $("status").textContent = t; }
+function hero(h, l) { $("headline").textContent = h; $("lede").textContent = l; }
+
+function closest(text) {
+  const t = text.toLowerCase();
+  if (/boiler|plumb|leak|call-out|callout|repair|radiator/.test(t)) return "plumber";
+  if (/salon|hair|book|appointment|instagram|nail|slot/.test(t)) return "salon";
+  return "cake";
+}
+
+// 1. Chore + example
+function sync() {
+  $("jobCount").textContent = `${$("job").value.length}/200`;
+  $("exCount").textContent = `${$("example").value.length}/3000`;
+  $("err1").textContent = "";
+}
+$("job").addEventListener("input", sync);
+$("example").addEventListener("input", sync);
+document.querySelectorAll("[data-chore]").forEach((b) => b.addEventListener("click", () => {
+  const s = SAMPLES[b.dataset.chore];
+  $("job").value = s.job; $("example").value = s.example; sync();
+}));
+
+$("p1").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  if (busy) return;
+  const job = $("job").value.trim(), ex = $("example").value.trim();
+  if (job.length < 3) { $("err1").textContent = "Write the chore in a few words, or try a sample."; $("job").focus(); return; }
+  if (ex.length < 20) { $("err1").textContent = "Paste one real example: a message, email or note this chore starts with."; $("example").focus(); return; }
+  busy = true;
+  const exact = Object.entries(SAMPLES).find(([, s]) => s.job === job && s.example === ex);
+  key = exact ? exact[0] : closest(job + " " + ex);
+  typed = !exact;
+  const s = SAMPLES[key];
+  asked = []; fixes = [];
+
+  $("noteBox").classList.add("fly");
+  await wait(700);
+  $("noteBox").classList.remove("fly");
+  show(2);
+  hero("Vara is doing your chore", "Watch it work on your example. Nothing is sent or connected.");
+  $("jobShow").textContent = job;
+  $("result").hidden = true; $("go2row").hidden = true;
+  $("orbit").innerHTML = s.icons.map((i) => `<span class="tool">${ICON[i]}</span>`).join("");
+  $("orbit").classList.add("on");
+  mood("working");
+  for (const t of s.status) { say(t); await wait(1000); }
+  say("Done! Here's my go at it.");
+  $("understood").innerHTML = li(s.understood);
+  $("missing").innerHTML = li(s.missing);
+  $("draftText").textContent = ""; $("caret").hidden = false;
+  $("pickedNote").hidden = !typed;
+  $("result").hidden = false;
+  await wait(700);
+  await typeOut($("draftText"), s.draft, 1800);
+  $("caret").hidden = true;
+  $("orbit").classList.remove("on");
+  mood("hungry");
+  $("go2row").hidden = false;
+  $("go2").focus();
+  busy = false;
+});
+
+async function typeOut(el, text, maxMs) {
+  el.textContent = "";
+  if (reduced) { el.textContent = text; return; }
+  const step = Math.max(4, Math.min(18, maxMs / Math.max(1, text.length)));
+  const per = Math.max(1, Math.ceil(text.length / (maxMs / step)));
+  for (let i = 0; i < text.length; i += per) { el.textContent = text.slice(0, i + per); await wait(step); }
+  el.textContent = text;
+}
+
+// 2 → 3. Ask Vara
+$("go2").addEventListener("click", () => {
+  hero("Your turn: interview Vara", "Ask it like a new starter. What it needs, what it won't do, a tricky case.");
+  say("Vara is listening");
+  $("chat").innerHTML = `<div class="va"><i></i><span>Ask me up to 3 questions about this chore, or skip straight to the double-check.</span></div>`;
+  $("askForm").hidden = false;
+  renderAsk();
+  show(3);
+});
+function renderAsk() {
+  const left = 3 - asked.length;
+  $("left").textContent = left > 0 ? `${left} ${left === 1 ? "question" : "questions"} left` : "That's the interview.";
+  $("askForm").hidden = left <= 0;
+  $("suggest").innerHTML = left > 0 ? SUGGESTED.filter((q) => !asked.includes(q)).map((q, i) => `<button type="button" class="starter" style="--r:${i % 2 ? 1.5 : -1.5}deg">${q}</button>`).join("") : "";
+  $("suggest").querySelectorAll("button").forEach((b) => b.addEventListener("click", () => ask(b.textContent)));
+}
+$("askForm").addEventListener("submit", (e) => { e.preventDefault(); ask($("ask").value.trim()); });
+async function ask(q) {
+  if (busy || asked.length >= 3 || q.length < 3) return;
+  busy = true;
+  asked.push(q);
+  $("ask").value = "";
+  $("chat").insertAdjacentHTML("beforeend", `<div class="you"></div>`);
+  $("chat").lastElementChild.textContent = q;
+  mood("working"); say("Vara is thinking…");
+  await wait(900);
+  $("chat").insertAdjacentHTML("beforeend", `<div class="va"><i></i><span></span></div>`);
+  await typeOut($("chat").lastElementChild.querySelector("span"), SAMPLES[key].answers[q] || FALLBACK, 1200);
+  mood("hungry"); say("Vara is listening");
+  renderAsk();
+  busy = false;
+}
+
+// 4. Double-check
+function renderCheck() {
+  const c = SAMPLES[key].card;
+  $("check").innerHTML = `<h3>Here's the job as I understand it</h3>
+    <p class="lbl">I'd do</p><ul>${li(c.does)}</ul>
+    <p class="lbl">I'd need</p><ul>${li(c.needs)}</ul>
+    <p class="lbl">Stays with you</p><ul>${li(c.human)}${fixes.map((f) => `<li class="new"></li>`).join("")}</ul>`;
+  const news = $("check").querySelectorAll("li.new");
+  fixes.forEach((f, n) => (news[n].textContent = f + " (new)"));
+}
+$("go3").addEventListener("click", () => {
+  if (busy) return;
+  renderCheck();
+  $("fixForm").hidden = true; $("checkBtns").hidden = false;
+  hero("Let's double-check", "Vara reads back what it learned. Fix anything before it hatches.");
+  say("Vara is waiting for your OK");
+  show(4);
+});
+$("fixOpen").addEventListener("click", () => { $("checkBtns").hidden = true; $("fixForm").hidden = false; $("fix").focus(); });
+$("fixForm").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const t = $("fix").value.trim();
+  if (!t || busy) return;
+  busy = true;
+  $("fixForm").hidden = true;
+  mood("working"); say("Vara is going back to fix that…");
+  $("check").style.opacity = .4;
+  await wait(1600);
+  fixes.push(t.charAt(0).toUpperCase() + t.slice(1));
+  renderCheck();
+  $("check").style.opacity = 1;
+  mood("hungry"); say("Fixed. Is it right now?");
+  $("fix").value = "";
+  $("checkBtns").hidden = false;
+  busy = false;
+});
+
+// 5. Hatch + card
+$("yes").addEventListener("click", async () => {
+  if (busy) return;
+  busy = true;
+  const s = SAMPLES[key], c = s.card;
+  $("checkBtns").hidden = true;
+  say("Something's happening…");
+  mood("cracking");
+  await wait(1100);
+  $("flash").classList.remove("go"); void $("flash").offsetWidth; $("flash").classList.add("go");
+  $("vara-acc").innerHTML = ACC[key];
+  mood("hungry");
+  say(`${s.name} has hatched!`);
+  await wait(500);
+  hero(`Meet your ${s.name}`, "Your own Vara, trained on your chore. Keep its card, share it, or hire it for real.");
+  $("portrait").innerHTML = $("vara").outerHTML.replace('id="vara"', "").replace('id="vara-acc"', "");
+  $("cardName").textContent = s.name;
+  $("cardRole").textContent = c.role.toLowerCase();
+  $("cardHours").textContent = c.hours + "h";
+  $("cDoes").innerHTML = li(c.does);
+  $("cNeeds").innerHTML = li(c.needs);
+  $("cHuman").innerHTML = li([...c.human, ...fixes]);
+  $("cAssume").textContent = c.assumption;
+  $("cardNo").textContent = "No. " + String(Math.floor(1000 + Math.random() * 8999));
+  $("toast").textContent = "";
+  show(5);
+  $("vcard").style.animation = "none"; void $("vcard").offsetWidth; $("vcard").style.animation = "";
+  $("vcard").focus();
+  busy = false;
+});
+$("hireBtn").addEventListener("click", () => { $("toast").textContent = `Real tool: opens Varahion's free assessment with "${SAMPLES[key].card.role}" filled in.`; });
+$("copyBtn").addEventListener("click", async () => {
+  const link = "https://varahion.com/tools/vara/c/k8f2xQ7a";
+  try { await navigator.clipboard.writeText(link); $("toast").textContent = "Sample link copied: " + link; }
+  catch { $("toast").textContent = "Sample link: " + link; }
+});
+$("dlBtn").addEventListener("click", () => { $("toast").textContent = "Real tool: downloads this Vara card as an image for sharing."; });
+$("againBtn").addEventListener("click", () => {
+  $("job").value = ""; $("example").value = ""; sync();
+  $("vara-acc").innerHTML = "";
+  say("Vara is hungry for a chore");
+  hero("Teach Vara a chore. Watch it hatch a helper.", "Tell Vara a job you repeat every week, show it one real example, and watch it do the job. Then ask it anything and keep its card.");
+  show(1);
+  $("job").focus();
+});
+</script>

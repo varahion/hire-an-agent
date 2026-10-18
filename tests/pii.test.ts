@@ -41,3 +41,31 @@ test("stripPii removes links and bare domains", () => {
 test("stripPii leaves times and dates alone", () => {
   assert.equal(stripPii("Pickup 2026-10-08 10:30"), "Pickup 2026-10-08 10:30");
 });
+
+test("stripPiiFromCard strips an email from the name and keeps the look", () => {
+  const card = stripPiiFromCard({
+    role: "Assistant",
+    does: ["Replies"],
+    needs: ["Inbox"],
+    humanDecides: ["Prices"],
+    hoursSavedPerWeek: 2,
+    assumption: "A guess",
+    name: "jo@example.com Vara",
+    look: "inbox",
+  });
+  assert.equal(JSON.stringify(card).includes("jo@example.com"), false);
+  assert.equal(card.look, "inbox");
+});
+
+test("stripPiiFromCard drops a name that was only personal data", () => {
+  const card = stripPiiFromCard({
+    role: "Assistant",
+    does: ["Replies"],
+    needs: ["Inbox"],
+    humanDecides: ["Prices"],
+    hoursSavedPerWeek: 2,
+    assumption: "A guess",
+    name: "jo@example.com",
+  });
+  assert.equal("name" in card, false);
+});

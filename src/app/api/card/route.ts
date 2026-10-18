@@ -8,9 +8,13 @@ import {
 } from "@/lib/limits";
 import { logEvent } from "@/lib/log";
 import { stripPiiFromCard } from "@/lib/pii";
-import { CARD_MESSAGE } from "@/lib/prompts";
-import { requestGuard } from "@/lib/request";
-import { cardResultSchema, type CardResult } from "@/lib/schemas";
+import { cardMessage } from "@/lib/prompts";
+import { readBody, requestGuard } from "@/lib/request";
+import {
+  cardResultSchema,
+  correctionSchema,
+  type CardResult,
+} from "@/lib/schemas";
 import { readSession } from "@/lib/session";
 import { saveCard } from "@/lib/cards";
 import { ndjsonResponse, type AppEvent } from "@/lib/stream";
@@ -28,6 +32,23 @@ export const maxDuration = 60;
 export async function POST(request: Request) {
   const blocked = requestGuard(request);
   if (blocked) return blocked;
+  // Checked before the card counter, so a rejected change doesn't use one up.
+  let raw: unknown;
+  try {
+    raw = await readBody(request);
+  } catch {
+    return Response.json(
+      { error: "Please send a change under 16 KB." },
+      { status: 400 },
+    );
+  }
+  const parsed = correctionSchema.safeParse(raw);
+  if (!parsed.success)
+    return Response.json(
+      { error: "Write the change in 3 to 200 characters." },
+      { status: 400 },
+    );
+  const { correction } = parsed.data;
 
   const session = readSession(request);
   if (!session)
@@ -50,14 +71,17 @@ export async function POST(request: Request) {
   const started = Date.now();
 
   async function* events(): AsyncIterable<AppEvent> {
-    yield { type: "status", text: "Writing the CV card…" };
+    yield {
+      type: "status",
+      text: correction ? "Fixing that…" : "Writing down what I learned…",
+    };
     let ok = false;
     let reason: string | undefined;
     const onFailure = (code: string) => (reason = code);
     for await (const event of safely(async () => {
       const response = await client!.sessions
         .attach(session!.sessionId)
-        .send(CARD_MESSAGE, {
+        .send(cardMessage(correction), {
           outputSchema: cardResultSchema,
           signal: AbortSignal.timeout(45_000),
         });

@@ -50,11 +50,9 @@ const STAGGER = 0.4;
 
 export function WorkingView({
   result,
-  status,
   onRevealed,
 }: {
   result: WorkResult | null;
-  status: string;
   onRevealed: () => void;
 }) {
   const reduced = useReduced();
@@ -73,7 +71,8 @@ export function WorkingView({
     if (result && (result.declined || (draftStart && typed.done))) onRevealed();
   }, [result, draftStart, typed.done, onRevealed]);
 
-  if (!result) return <LiveStatus text={status} />;
+  // While Vara works, its status line on the stage says what it's doing.
+  if (!result) return null;
 
   const enter = (i: number) =>
     reduced
@@ -92,10 +91,10 @@ export function WorkingView({
     return (
       <motion.section
         {...enter(0)}
-        className="border-l-2 border-accent-vermilion pl-5"
+        className="mx-auto max-w-[520px] rounded-xl border border-border bg-card p-5"
       >
-        <h2 className="text-xl font-semibold tracking-tight">
-          I&apos;d turn this job down.
+        <h2 className="font-display text-xl font-bold">
+          I&apos;d turn this chore down.
         </h2>
         <p className="mt-3 leading-relaxed">{result.declined.reason}</p>
         <p className="mt-3 leading-relaxed">
@@ -106,20 +105,30 @@ export function WorkingView({
     );
 
   return (
-    <section className="space-y-8">
-      <div className="grid gap-8 sm:grid-cols-2">
-        <motion.div {...enter(0)}>
-          <h2 className="font-medium">What I understood</h2>
-          <ul className="mt-3 space-y-2 text-[15px] leading-snug">
+    <section className="mx-auto grid max-w-[520px] gap-3.5">
+      <div className="grid gap-3.5 sm:grid-cols-2">
+        <motion.div
+          {...enter(0)}
+          className="rounded-xl border border-border bg-card px-4 py-3.5"
+        >
+          <h2 className="font-display text-[17px] font-bold">
+            What I understood
+          </h2>
+          <ul className="mt-1.5 list-disc space-y-1 pl-[18px] text-[15px] leading-snug">
             {result.understood.map((item) => (
               <li key={item}>{item}</li>
             ))}
           </ul>
         </motion.div>
-        <motion.div {...enter(1)}>
-          <h2 className="font-medium">What&apos;s missing</h2>
+        <motion.div
+          {...enter(1)}
+          className="rounded-xl border border-border bg-card px-4 py-3.5"
+        >
+          <h2 className="font-display text-[17px] font-bold">
+            What&apos;s missing
+          </h2>
           {result.missing.length ? (
-            <ul className="mt-3 space-y-2 text-[15px] leading-snug">
+            <ul className="mt-1.5 list-disc space-y-1 pl-[18px] text-[15px] leading-snug">
               {result.missing.map((item) => (
                 <li key={item} className="text-accent-ink">
                   {item}
@@ -127,29 +136,27 @@ export function WorkingView({
               ))}
             </ul>
           ) : (
-            <p className="mt-3 text-[15px] text-muted-foreground">
+            <p className="mt-1.5 text-[15px] text-muted-foreground">
               Nothing. Your example has what I need.
             </p>
           )}
         </motion.div>
       </div>
-      <motion.div {...enter(2)}>
-        <h2 className="font-medium">My draft, for your approval</h2>
-        <div className="mt-3 border border-foreground bg-white/70 p-5 sm:p-6">
-          <p
-            className="whitespace-pre-wrap leading-relaxed"
-            aria-hidden={!typed.done}
-          >
-            {typed.shown}
-            {!typed.done && (
-              <span className="ml-0.5 inline-block h-[1.1em] w-[2px] translate-y-[0.2em] animate-pulse bg-accent-vermilion" />
-            )}
-          </p>
-        </div>
-        <p className="mt-2 text-sm text-muted-foreground">
-          Nothing has been sent. You decide what goes out.
+      <motion.div {...enter(2)} className="vara-note -rotate-[0.6deg]">
+        <h2 className="font-display text-[17px] font-bold">
+          My draft, for your approval
+        </h2>
+        <p
+          className="mt-1.5 whitespace-pre-wrap leading-relaxed"
+          aria-hidden={!typed.done}
+        >
+          {typed.shown}
+          {!typed.done && <span className="vara-caret" />}
         </p>
       </motion.div>
+      <p className="text-center text-[13px] text-muted-foreground">
+        Nothing has been sent. You decide what goes out.
+      </p>
     </section>
   );
 }

@@ -28,5 +28,10 @@ export function stripPiiFromCard(card: CardResult): CardResult {
     humanDecides: card.humanDecides.map(stripPii),
     hoursSavedPerWeek: card.hoursSavedPerWeek,
     assumption: stripPii(card.assumption),
+    // A name is a label, not a sentence: drop it rather than show "[removed] Vara".
+    ...(card.name && stripPii(card.name) === card.name
+      ? { name: card.name }
+      : {}),
+    ...(card.look ? { look: card.look } : {}),
   };
 }
